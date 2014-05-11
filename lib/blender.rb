@@ -1,6 +1,5 @@
 require 'blender/version'
 require 'blender/scheduler'
-require 'blender/task'
 require 'blender/log'
 require 'blender/drivers/shellout'
 

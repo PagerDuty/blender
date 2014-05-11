@@ -39,7 +39,6 @@ module Blender
         raise RuntimeError, 'this method must be overridden'
       end
 
-
       private
       def default_config
         {

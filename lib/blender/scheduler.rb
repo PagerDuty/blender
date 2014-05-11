@@ -1,4 +1,3 @@
-require 'blender/task'
 require 'blender/log'
 require 'blender/utils/thread_pool'
 require 'blender/driver'
@@ -8,6 +7,7 @@ require 'blender/utils/thread_pool'
 require 'blender/scheduler/dsl'
 require 'blender/event_dispatcher'
 require 'blender/handlers/doc'
+require 'blender/task_factory'
 
 module Blender
   class Scheduler
@@ -18,6 +18,11 @@ module Blender
 
     def initialize(name, tasks = [], metadata = {})
       @name = name
+      if tasks.empty?
+        @task_manager = TaskFactory.get(:executer)
+      else
+        @task_manager = TaskFactory.first.class
+      end
       @tasks = tasks
       @metadata = default_metadata.merge(metadata)
       @events = Blender::EventDispatcher.new
@@ -25,7 +30,6 @@ module Blender
       @strategy = SchedulingStrategy::Default.new
       @events.register(Blender::Handlers::Doc.new)
     end
-
 
     def run
       @events.run_started(self)

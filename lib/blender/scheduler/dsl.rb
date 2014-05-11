@@ -4,7 +4,7 @@ require 'blender/scheduling_strategy'
 module Blender
   module SchedulerDSL
     def task(command)
-      task = Task.new(command)
+      task = @task_manager.new(command)
       yield task if block_given?
       Log.debug("Appended task:#{task.inspect}")
       @tasks << task
@@ -26,6 +26,7 @@ module Blender
       Log.debug("Setting members:#{members.inspect}")
       @metadata[:members] = members
     end
+
     def driver(type)
       config = {events: @events}
       yield config if block_given?
