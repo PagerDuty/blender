@@ -25,6 +25,8 @@ module Blender
         {
         timout: 60,
         ignore_failure: false,
+        retries: 0,
+        retry_delay: 0,
         async: 0,
         handlers: []
         }

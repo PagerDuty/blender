@@ -7,5 +7,7 @@ gem 'pry'
 gem 'chef-metal-lxc'
 gem 'berkshelf'
 gem 'chef-zero'
-gem 'irbtools'
+gem 'irbtools', require: 'binding.repl'
+
 gem 'rspec'
+gem 'serfx', github: 'ranjib/serfx'

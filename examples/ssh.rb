@@ -1,11 +1,10 @@
 require_relative 'data/helper'
 require 'blender'
 
-chef_deb_url = 'https://opscode-omnibus-packages.s3.amazonaws.com/ubuntu/13.04/x86_64/chef_11.12.4-1_amd64.deb'
+
 cluser_spec = {db: 3}
 members = helper.cluster_up(cluser_spec)[:db] 
-puts members.inspect
-
+chef_deb_url = 'https://opscode-omnibus-packages.s3.amazonaws.com/ubuntu/13.04/x86_64/chef_11.12.4-1_amd64.deb'
 Blender.blend('install chef') do |sch|
   sch.members members
   sch.strategy :per_host
