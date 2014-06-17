@@ -29,12 +29,11 @@ end
 
 Blender.blend('guards with shellout') do |sch|
   sch.task 'echo "Checking not_if guard"'
-  sch.task 'ping -c 10 8.8.8.8' do |t|
+  sch.task 'test guard' do |t|
+    t.execute 'ping -c 10 8.8.8.8'
     t.not_if 'ping -c 1 8.8.8.8'
   end
   sch.task 'echo "Should be printed soon after"'
-  sch.task 'ping -c 5 8.8.8.8' do |t|
-    t.only_if 'ping -c 1 8.8.8.8'
-  end
+  sch.task 'ping -c 5 8.8.8.8'
   sch.task 'echo "This will be printed with some delay"'
 end

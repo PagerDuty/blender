@@ -6,5 +6,6 @@ module Blender
     class UnknownTransport < ArgumentError; end
     class UnknownTask < ArgumentError; end
     class UnknownSchedulingStrategy < ArgumentError; end
+    class SerfAsyncJobError < RuntimeError; end
   end
 end

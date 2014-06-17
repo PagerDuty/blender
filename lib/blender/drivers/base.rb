@@ -4,6 +4,8 @@ module Blender
   module Driver
     class Base
 
+      ExecOutput = Struct.new(:exitstatus, :stdout, :stderr)
+
       def initialize(events, config = {})
         @events = events
         @config = default_config.merge(config)

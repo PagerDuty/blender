@@ -10,4 +10,4 @@ gem 'chef-zero'
 gem 'irbtools', require: 'binding.repl'
 
 gem 'rspec'
-gem 'serfx', github: 'ranjib/serfx'
+gem 'serfx'

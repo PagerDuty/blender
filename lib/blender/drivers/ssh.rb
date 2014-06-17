@@ -6,13 +6,11 @@ module Blender
   module Driver
     class Ssh < Base
 
-      ExecOutput = Struct.new(:exitstatus, :stdout, :stderr)
-
       def execute(job)
         tasks = job.tasks
         hosts = job.hosts
         Log.debug("SSH execution tasks [#{tasks.inspect}]")
-        Log.debug("SSH On hosts [#{hosts.inspect}]")
+        Log.debug("SSH on hosts [#{hosts.inspect}]")
         Array(hosts).each do |host|
           @session = ssh_session(host)
           Array(tasks).each do |task|
@@ -44,7 +42,6 @@ module Blender
         Log.debug("Invoking ssh: #{user}@#{host}")
         Net::SSH.start(host, user, ssh_config)
       end
-
 
       def raw_exec(command)
         password = @config[:password]

@@ -2,9 +2,12 @@ require_relative 'data/helper'
 require 'blender'
 
 
-cluser_spec = {db: 3}
-members = helper.cluster_up(cluser_spec)[:db] 
+members = helper.sandbox_create('db', 3, base_container: 'trusty')
+puts members.inspect
 chef_deb_url = 'https://opscode-omnibus-packages.s3.amazonaws.com/ubuntu/13.04/x86_64/chef_11.12.4-1_amd64.deb'
+
+#Blender::Log.level = :debug
+
 Blender.blend('install chef') do |sch|
   sch.members members
   sch.strategy :per_host
@@ -31,3 +34,4 @@ Blender.blend('install chef') do |sch|
   end
   sch.concurrency 1
 end
+helper.destroy(db: 3)
