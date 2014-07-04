@@ -8,11 +8,13 @@ require 'blender/scheduler/dsl'
 require 'blender/event_dispatcher'
 require 'blender/handlers/doc'
 require 'blender/task_factory'
+require 'blender/discovery'
 
 module Blender
   class Scheduler
 
     include SchedulerDSL
+    include Discovery
 
     attr_reader :metadata, :name
 
@@ -26,7 +28,7 @@ module Blender
       @tasks = tasks
       @metadata = default_metadata.merge(metadata)
       @events = Blender::EventDispatcher.new
-      @driver = Driver.get(:local).new(@events)
+      @driver = Driver.get(:local).new(events: @events)
       @strategy = SchedulingStrategy::Default.new
       @events.register(Blender::Handlers::Doc.new)
     end

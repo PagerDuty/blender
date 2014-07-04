@@ -5,7 +5,6 @@ require 'blender/drivers/base'
 module Blender
   module Driver
     class Local < Base
-
       def execute(job)
         tasks = job.tasks
         hosts = job.hosts
