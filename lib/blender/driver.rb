@@ -3,6 +3,7 @@ require 'blender/drivers/shellout'
 require 'blender/drivers/serf'
 require 'blender/drivers/serf_multi'
 require 'blender/drivers/serf_async'
+require 'blender/drivers/ruby'
 
 module Blender
   module Driver
@@ -12,6 +13,8 @@ module Blender
         Driver::Ssh
       when :local
         Driver::ShellOut
+      when :ruby
+        Driver::Ruby
       when :serf
         Driver::Serf
       when :serf_multi
