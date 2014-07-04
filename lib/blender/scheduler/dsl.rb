@@ -1,8 +1,13 @@
 require 'blender/exceptions'
 require 'blender/scheduling_strategy'
+require 'highline'
 
 module Blender
   module SchedulerDSL
+
+    def ask(msg)
+      HighLine.new.ask(msg){|q| q.echo = false}
+    end
 
     def task(command)
       task = @task_manager.new(command)

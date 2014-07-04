@@ -36,13 +36,6 @@ module Blender
          end
       end
 
-      def ssh_session(host)
-        user = @config[:user] || ENV['USER']
-        ssh_config = { password: @config[:password]}
-        Log.debug("Invoking ssh: #{user}@#{host}")
-        Net::SSH.start(host, user, ssh_config)
-      end
-
       def raw_exec(command)
         password = @config[:password]
         command = fixup_sudo(command)
@@ -78,6 +71,14 @@ module Blender
       end
 
       private
+
+      def ssh_session(host)
+        user = @config[:user] || ENV['USER']
+        ssh_config = { password: @config[:password]}
+        Log.debug("Invoking ssh: #{user}@#{host}")
+        Net::SSH.start(host, user, ssh_config)
+      end
+
       def fixup_sudo(command)
         command.sub(/^sudo/, 'sudo -p \'blender sudo password: \'')
       end
