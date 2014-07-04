@@ -6,8 +6,8 @@ module Blender
 
       ExecOutput = Struct.new(:exitstatus, :stdout, :stderr)
 
-      def initialize(events, config = {})
-        @events = events
+      def initialize(config)
+        @events = config.delete(:events) or fail 'Events needed'
         @config = default_config.merge(config)
       end
 
@@ -51,6 +51,7 @@ module Blender
           stderr: $stderr
         }
       end
+
       def config
         @config
       end
