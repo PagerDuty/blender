@@ -3,6 +3,7 @@ require 'blender/scheduling_strategy'
 
 module Blender
   module SchedulerDSL
+
     def task(command)
       task = @task_manager.new(command)
       yield task if block_given?
@@ -30,7 +31,7 @@ module Blender
     def driver(type)
       config = {events: @events}
       yield config if block_given?
-      @driver = Driver.get(type).new(@events, config)
+      @driver = Driver.get(type).new(config)
     end
   end
 end
