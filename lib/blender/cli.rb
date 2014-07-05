@@ -16,7 +16,7 @@ module Blender
     def from_file
       des = File.read(options[:file])
       Blender.blend(options[:file]) do |sch|
-        sch.instance_eval(des)
+        sch.instance_eval(des, __FILE__, __LINE__)
       end
     end
 
