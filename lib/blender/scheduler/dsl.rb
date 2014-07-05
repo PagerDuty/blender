@@ -1,5 +1,6 @@
 require 'blender/exceptions'
 require 'blender/scheduling_strategy'
+require 'blender/tasks/base'
 require 'highline'
 
 module Blender
@@ -9,8 +10,12 @@ module Blender
       HighLine.new.ask(msg){|q| q.echo = false}
     end
 
+    def register_handler(handler)
+      @events.register(handler)
+    end
+
     def task(command)
-      task = @task_manager.new(command)
+      task = Blender::Task::Base.new(command)
       yield task if block_given?
       Log.debug("Appended task:#{task.inspect}")
       @tasks << task
@@ -36,7 +41,11 @@ module Blender
     def driver(type)
       config = {events: @events}
       yield config if block_given?
-      @driver = Driver.get(type).new(config)
+      @default_driver = Driver.get(type).new(config)
+    end
+
+    def register_driver(type, name, config = nil)
+      @registered_drivers[name] = Driver.get(type).new(config.merge(events: @events))
     end
   end
 end

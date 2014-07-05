@@ -7,13 +7,6 @@ module Blender
   module Task
     class Executer < Blender::Task::Base
 
-      def execute(cmd)
-        @command = cmd
-      end
-
-      def command
-        @command || name
-      end
     end
   end
 end

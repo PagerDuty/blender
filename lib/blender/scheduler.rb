@@ -7,7 +7,7 @@ require 'blender/utils/thread_pool'
 require 'blender/scheduler/dsl'
 require 'blender/event_dispatcher'
 require 'blender/handlers/doc'
-require 'blender/task_factory'
+require 'blender/tasks/base'
 require 'blender/discovery'
 
 module Blender
@@ -20,24 +20,22 @@ module Blender
 
     def initialize(name, tasks = [], metadata = {})
       @name = name
-      if tasks.empty?
-        @task_manager = TaskFactory.get(:executer)
-      else
-        @task_manager = TaskFactory.first.class
-      end
       @tasks = tasks
       @metadata = default_metadata.merge(metadata)
       @events = Blender::EventDispatcher.new
-      @driver = Driver.get(:local).new(events: @events)
-      @strategy = SchedulingStrategy::Default.new
       @events.register(Blender::Handlers::Doc.new)
+      @registered_discoveries = {}
+      @registered_drivers = {}
+      @strategy = nil
     end
 
     def run
+      @strategy ||= SchedulingStrategy::Default.new
       @events.run_started(self)
+      @default_driver ||= Driver.get(:local).new(events: @events)
       @events.job_computation_started(@strategy)
-      jobs = @strategy.compute_jobs(@tasks, @metadata[:members])
-      @events.job_computation_finished(@strategy, jobs)
+      jobs = @strategy.compute_jobs(@default_driver, @tasks, @metadata[:members])
+      @events.job_computation_finished(self, jobs)
       if metadata[:concurrency] > 1
         concurrent_run(jobs)
       else
@@ -70,7 +68,13 @@ module Blender
       Log.debug("Running job #{job.inspect}")
       @events.job_started(job)
       begin
-        @driver.execute(job)
+        driver = case job.driver
+                 when String
+                   @registered_drivers[job.driver]
+                 else
+                   job.driver
+                 end
+        driver.execute(job)
       rescue Exceptions::ExecutionFailed => e
         @events.job_errored(job, e)
         if metadata[:ignore_failure]
