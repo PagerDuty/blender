@@ -21,7 +21,7 @@ module Blender
     end
 
     def discover(type, options = {})
-      @global_discovery =   self.get(type).new(options).search(options[:search])
+      @global_discovery = Discovery.get(type).new(options).search(options[:search])
     end
 
     class ChefDiscovery
