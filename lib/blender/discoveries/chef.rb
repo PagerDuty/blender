@@ -1,8 +1,9 @@
+require 'chef/search/query'
+
 module Blender
   module Discovery
     class ChefDiscovery
       def initialize(options)
-        require 'chef/search/query'
         if options[:config_file]
           Chef::Config.from_file options[:config_file]
         end
