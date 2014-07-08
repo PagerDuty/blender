@@ -7,19 +7,19 @@ module Blender
   module Driver
     class Serf < Base
 
-      def initialize(events, config)
-        @events = events
-        @config = config
-      end
-
       def raw_exec(command)
         responses = []
-        query, payload = command.split(/\s+/, 2)
-        Log.debug("Invoking serf query '#{query}' with payload '#{payload}' against #{@current_host}")
+        Log.debug("Invoking serf query '#{command.query}' with payload '#{command.payload}' against #{@current_host}")
         Log.debug("Serf RPC address #{@config[:host]}:#{@config[:port]}")
-        Serfx.connect(host: @config[:host], port: @config[:port]) do |conn|
-          conn.query(query, payload, 'FilterNodes'=> [@current_host], 'Timeout'=> 20*1e9.to_i) do |event|
+        serf_config = {
+          host: @config[:host],
+          port: @config[:port],
+          authkey: @config[:authkey]
+        }
+        Serfx.connect(serf_config) do |conn|
+          conn.query(command.query, command.payload, FilterNodes: [@current_host], Timeout: 5*1e9.to_i) do |event|
             responses <<  event
+            puts event.payload
           end
         end
         exit_status = responses.size == 1 ? 0 : -1
