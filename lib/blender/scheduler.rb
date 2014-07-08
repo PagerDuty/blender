@@ -26,6 +26,7 @@ module Blender
       @events.register(Blender::Handlers::Doc.new)
       @registered_discoveries = {}
       @registered_drivers = {}
+      @default_driver = nil
       @strategy = nil
     end
 
@@ -68,12 +69,7 @@ module Blender
       Log.debug("Running job #{job.inspect}")
       @events.job_started(job)
       begin
-        driver = case job.driver
-                 when String
-                   @registered_drivers[job.driver]
-                 else
-                   job.driver
-                 end
+        driver = job.driver || @default_driver
         driver.execute(job)
       rescue Exceptions::ExecutionFailed => e
         @events.job_errored(job, e)
