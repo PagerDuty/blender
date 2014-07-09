@@ -16,10 +16,14 @@ module Blender
           port: @config[:port],
           authkey: @config[:authkey]
         }
+        query_opts = {
+         FilterNodes: [@current_host],
+         Timeout: (command.timeout || 15)*1e9.to_i
+        }
         Serfx.connect(serf_config) do |conn|
-          conn.query(command.query, command.payload, FilterNodes: [@current_host], Timeout: 5*1e9.to_i) do |event|
+          conn.query(command.query, command.payload,) do |event|
             responses <<  event
-            puts event.payload
+            puts event.inspect
           end
         end
         exit_status = responses.size == 1 ? 0 : -1
