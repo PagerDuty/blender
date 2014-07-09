@@ -1,5 +1,6 @@
 require 'blender/discoveries/chef'
 require 'blender/discoveries/serf'
+
 module Blender
   module Discovery
     def self.get(type)
@@ -22,8 +23,8 @@ module Blender
     end
 
     def discover(type, options = {})
-      @global_discovery = Discovery.get(type).new(options).search(options[:search])
+      search_opts = options[:search] || {}
+      @global_discovery = Discovery.get(type).new(options).search(search_opts)
     end
-
   end
 end
