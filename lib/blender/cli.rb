@@ -20,12 +20,12 @@ module Blender
       end
     end
 
-    desc 'daemon', 'Run blender in daemon mode'
+    desc 'schedule', 'Run blender in daemon mode, with job scheduled in periodic interval'
     method_option :schedule,
       default: 'Schedule_it',
       type: :string,
       aliases: '-s'
-    def daemon
+    def schedule
       sched = Blender::Timer.new
       des = File.read(options[:schedule])
       sched.instance_eval(des)
