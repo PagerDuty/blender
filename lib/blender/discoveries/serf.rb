@@ -6,7 +6,7 @@ module Blender
       def initialize(opts)
         @config = opts
       end
-      def search(opts)
+      def search(opts = {})
         tags = opts[:tags] || {}
         status = opts[:status] || 'alive'
         name = opts[:name]
