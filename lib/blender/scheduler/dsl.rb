@@ -29,7 +29,11 @@ module Blender
 
     def ruby_task(name)
       task = Blender::Task::RubyTask.new(name)
-      task.use_driver(Driver.get(:ruby).new(events: @events))
+      if @default_driver.is_a?(Blender::Driver::Ruby)
+        task.use_driver(@default_driver)
+      else
+        task.use_driver(Driver.get(:ruby).new(events: @events))
+      end
       yield task if block_given?
       Log.debug("Appended task:#{task.inspect}")
       validate_driver!(task, Blender::Driver::Ruby)
@@ -38,7 +42,11 @@ module Blender
 
     def ssh_task(name)
       task = Blender::Task::SSHTask.new(name)
-      task.use_driver(Driver.get(:ssh).new(events: @events))
+      if @default_driver.is_a?(Blender::Driver::Ssh)
+        task.use_driver(@default_driver)
+      else
+        task.use_driver(Driver.get(:ssh).new(events: @events))
+      end
       yield task if block_given?
       Log.debug("Appended task:#{task.inspect}")
       validate_driver!(task, Blender::Driver::Ssh)
@@ -47,7 +55,11 @@ module Blender
 
     def serf_task(name)
       task = Blender::Task::SerfTask.new(name)
-      task.use_driver(Driver.get(:serf).new(events: @events))
+      if @default_driver.is_a?(Blender::Driver::Serf)
+        task.use_driver(@default_driver)
+      else
+        task.use_driver(Driver.get(:serf).new(events: @events))
+      end
       yield task if block_given?
       Log.debug("Appended task:#{task.inspect}")
       validate_driver!(task, Blender::Driver::Serf)
@@ -71,8 +83,8 @@ module Blender
       @metadata[:members] = members
     end
 
-    def driver(type)
-      config = {events: @events}
+    def driver(type, opts = {})
+      config = opts.merge(events: @events)
       yield config if block_given?
       @default_driver = Driver.get(type).new(config)
     end

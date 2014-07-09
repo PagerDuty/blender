@@ -49,6 +49,12 @@ module Blender
         @hosts = hosts
       end
 
+      def add_metadata(opts = {})
+        opts.keys.each do |k|
+          @metadata[k] = opts[k]
+        end
+      end
+
       def default_metadata
         {
         timout: 60,
