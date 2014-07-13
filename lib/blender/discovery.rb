@@ -31,17 +31,17 @@ module Blender
       end
     end
 
-    def register_discovery(type, name, opts = nil)
+    def register_discovery(type, name, opts = {})
       @registered_discoveries[name] = Discovery.get(type).new(opts)
     end
 
-    def discover_by(name, opts)
+    def discover_by(name, opts ={})
       @registered_discoveries[name].search(opts)
     end
 
     def discover(type, options = {})
-      search_opts = options[:search] || {}
-      @global_discovery = Discovery.get(type).new(options).search(search_opts)
+      search_opts = options.delete(:search)
+      Discovery.get(type).new(options).search(search_opts)
     end
   end
 end

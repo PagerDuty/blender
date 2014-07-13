@@ -33,7 +33,7 @@ module Blender
     include SchedulerDSL
     include Discovery
 
-    attr_reader :metadata, :name
+    attr_reader :metadata, :name, :registered_discoveries
 
     def initialize(name, tasks = [], metadata = {})
       @name = name

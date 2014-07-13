@@ -20,7 +20,7 @@ require 'chef/search/query'
 module Blender
   module Discovery
     class ChefDiscovery
-      def initialize(options)
+      def initialize(options = {})
         if options[:config_file]
           Chef::Config.from_file options[:config_file]
         end
@@ -35,7 +35,7 @@ module Blender
         @attribute = options[:attribute] || 'fqdn'
       end
 
-      def search(search_term)
+      def search(search_term = '*:*')
         q = Chef::Search::Query.new
         res = q.search(:node, search_term)
         res.first.collect{|n| node_attribute(n, @attribute)}

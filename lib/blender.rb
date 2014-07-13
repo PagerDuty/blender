@@ -42,22 +42,4 @@ module Blender
     scheduler.run
     nil
   end
-
-  # Trigger a blender job in the background and returns the pid of the
-  # background process. Behaves exactly same as Blender#blend. When a block
-  # is passed, an object of Blended::Scheduler is yielded, else the name is
-  # treated as command and executed using shellout driver locally
-  #
-  # @param name [String] name of the job
-  #
-  # @return [Fixnum] pid of the background process
-  def self.blend_async(name)
-    Log.debug('Blending in background!')
-    pid = fork do
-      blend(name)
-    end
-    Process.detach(pid)
-    Log.debug("Blender PID:#{pid}")
-    pid
-  end
 end
