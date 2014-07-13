@@ -37,7 +37,7 @@ module Blender
       @scheduled_jobs.each do |job|
         case job.schedule.first
         when :every
-          scheduler.every(*job.schedule[1]) do
+          scheduler.every(job.schedule[1]) do
             job.run
           end
         when :cron

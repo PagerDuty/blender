@@ -16,25 +16,46 @@
 # limitations under the License.
 
 module Blender
+  # A scheduled job encapsulates a blender based job to be executed
+  # at certain interval. Job is specified as a file path, where
+  # the file contains job written in blender's DSL. Job interval can be
+  # specified either via +cron+ or  +every+ method
+  #
+  # +Blender::Timer+ object uses +ScheduledJob+ and to execute the job
+  # and Rufus::Scheduler to schedule it
   class ScheduledJob
-    attr_reader :schedule
+    attr_reader :schedule, :file
+    # create a new instance
+    # @param name [String] name of the job
     def initialize(name)
       @name = name
       @file = nil
     end
 
+    # set the path of the file holding blender job
+    #
+    # @param file [String] path of the blender file
     def blender_file(file)
       @file = file
     end
 
+    # set the job inteval via cron syntax. The value is passed as it  is
+    # to rufus scheduler.
+    #
+    # @param line [String] job interval in cron syntax e.g (*/5 * * * *)
     def cron(line)
       @schedule = [ __method__, line]
     end
 
-    def every(*args)
-      @schedule = [ __method__, args]
+    # set the job inteval after every specified seconds
+    # to rufus scheduler.
+    #
+    # @param interval [Fixnum] job interval in seconds
+    def every(interval)
+      @schedule = [ __method__, interval]
     end
 
+    # invoke a blender run based on the +blender_file+
     def run
       des = File.read(@file)
       Blender.blend(@file) do |sch|
