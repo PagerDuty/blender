@@ -20,6 +20,7 @@ require 'blender/handlers/base'
 
 module Blender
   class EventDispatcher
+    attr_reader :handlers
     def initialize
       @handlers = []
     end

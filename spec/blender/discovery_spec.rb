@@ -10,6 +10,9 @@ describe Blender::Discovery do
   let(:serf_discovery) do
     Blender::Discovery::SerfDiscovery
   end
+  let(:test_discovery) do
+    scheduler.registered_discoveries['test']
+  end
   it 'should return ChefDiscover is type :chef is passed' do
     expect(described_class.get(:chef)).to eq(chef_discovery)
   end
@@ -18,16 +21,15 @@ describe Blender::Discovery do
   end
   it '#register_discovery' do
     scheduler.register_discovery(:chef, 'test')
-    expect(scheduler.registered_discoveries['test']).to be_kind_of(chef_discovery)
+    expect(test_discovery).to be_kind_of(chef_discovery)
   end
   it '#discover_by' do
     scheduler.register_discovery(:chef, 'test')
-    allow(scheduler.registered_discoveries['test']).to receive(:search).and_return(dummy_hosts)
+    allow(test_discovery).to receive(:search).and_return(dummy_hosts)
     expect(scheduler.discover_by('test')).to eq(dummy_hosts)
   end
   it '#discover' do
-    dummy_discovery = double(chef_discovery)
-    expect(dummy_discovery).to receive(:search).and_return(dummy_hosts)
+    dummy_discovery = double(chef_discovery, search: dummy_hosts)
     expect(chef_discovery).to receive(:new).and_return(dummy_discovery)
     expect(scheduler.discover(:chef)).to eq(dummy_hosts)
   end
