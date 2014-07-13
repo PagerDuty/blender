@@ -23,5 +23,6 @@ module Blender
     class UnknownTask < ArgumentError; end
     class UnknownSchedulingStrategy < ArgumentError; end
     class SerfAsyncJobError < RuntimeError; end
+    class MultipleDrivers < RuntimeError; end
   end
 end

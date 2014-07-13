@@ -5,8 +5,15 @@ require 'rspec'
 require 'rspec/mocks'
 require 'rspec/expectations'
 require 'blender'
-
+module SpecHelper
+  def task_with_driver(name, driver)
+    t = Blender::Task::Base.new(name)
+    t.use_driver(driver)
+    t
+  end
+end
 RSpec.configure do |config|
+  config.include SpecHelper
   config.mock_with :rspec do |mocks|
     mocks.verify_doubled_constant_names = true
   end
