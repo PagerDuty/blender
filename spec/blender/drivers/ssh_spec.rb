@@ -10,7 +10,7 @@ describe Blender::Driver::Ssh do
       Array.new(3){|n| create_task("t#{n}")}
     )
   end
-  it 'should execute' do
+  it 'should execute commands over net ssh channel' do
     channel = double('channel').as_null_object
     session = double('session', open_channel: channel, loop: true)
     expect(Net::SSH).to receive(:start).with(

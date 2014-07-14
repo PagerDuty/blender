@@ -17,6 +17,9 @@ module SpecHelper
     end
     t
   end
+  def create_serf_task(name)
+    Blender::Task::SerfTask.new(name)
+  end
 end
 
 RSpec.configure do |config|
