@@ -17,9 +17,11 @@
 
 require 'blender/scheduling_strategies/default'
 require 'blender/exceptions'
+require 'blender/utils/refinements'
 
 module Blender
   module SchedulingStrategy
+    extend Blender::Utils::Refinements
     def self.get(strategy)
       case strategy
       when String, Symbol
@@ -30,22 +32,6 @@ module Blender
       else
         raise Exceptions::UnknownSchedulingStrategy, strategy.inspect
       end
-    end
-
-    def self.camelcase(string)
-      str = string.dup
-      str.gsub!(/[^A-Za-z0-9_]/,'_')
-      rname = nil
-      regexp = %r{^(.+?)(_(.+))?$}
-      mn = str.match(regexp)
-      if mn
-        rname = mn[1].capitalize
-        while mn && mn[3]
-          mn = mn[3].match(regexp)
-          rname << mn[1].capitalize if mn
-        end
-      end
-      rname
     end
   end
 end
