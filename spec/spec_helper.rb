@@ -1,17 +1,24 @@
-#require 'simplecov'
-#SimpleCov.formatter = SimpleCov::Formatter::HTMLFormatter
-#SimpleCov.start { add_filter '/spec/' }
+require 'simplecov'
+SimpleCov.formatter = SimpleCov::Formatter::HTMLFormatter
+SimpleCov.start do
+  add_filter '/spec/'
+  add_filter '.bundle'
+end
 require 'rspec'
 require 'rspec/mocks'
 require 'rspec/expectations'
 require 'blender'
+
 module SpecHelper
-  def task_with_driver(name, driver)
+  def create_task(name, driver = nil)
     t = Blender::Task::Base.new(name)
-    t.use_driver(driver)
+    if driver
+      t.use_driver(driver)
+    end
     t
   end
 end
+
 RSpec.configure do |config|
   config.include SpecHelper
   config.mock_with :rspec do |mocks|
