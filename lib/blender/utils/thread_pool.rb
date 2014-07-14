@@ -18,13 +18,15 @@ module Blender
         num = @size > @queue.size ? @queue.size : @size
         threads = Array.new(num) do
           Thread.new do
+            Thread.current.abort_on_exception = true
             @queue.pop.call while true
           end
         end
-        until @queue.empty? and (@queue.num_waiting == num)
-          threads.each do |thread|
-            thread.join(0.02)
-          end
+        until @queue.empty?
+          sleep 0.2
+        end
+        threads.each do |thread|
+          thread.join(0.02)
         end
         threads.map(&:kill)
       end
