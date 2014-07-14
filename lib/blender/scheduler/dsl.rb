@@ -27,8 +27,8 @@ require 'highline'
 module Blender
   module SchedulerDSL
 
-    def ask(msg)
-      HighLine.new.ask(msg){|q| q.echo = false}
+    def ask(msg, echo = false)
+      HighLine.new.ask(msg){|q| q.echo = echo}
     end
 
     def register_handler(handler)

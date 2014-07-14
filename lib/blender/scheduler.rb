@@ -34,6 +34,7 @@ module Blender
     include Discovery
 
     attr_reader :metadata, :name, :registered_discoveries
+    attr_reader :events, :tasks, :default_driver, :registered_drivers
 
     def initialize(name, tasks = [], metadata = {})
       @name = name
@@ -86,7 +87,7 @@ module Blender
       Log.debug("Running job #{job.inspect}")
       @events.job_started(job)
       begin
-        driver = job.driver || @default_driver
+        driver = job.driver || default_driver
         driver.execute(job)
       rescue Exceptions::ExecutionFailed => e
         @events.job_errored(job, e)

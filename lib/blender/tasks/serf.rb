@@ -11,6 +11,10 @@ module Blender
         @command = SerfQuery.new
       end
 
+      def execute(&block)
+        @command.instance_eval(&block)
+      end
+
       def query(q)
         @command.query = q
       end

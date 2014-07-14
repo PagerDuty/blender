@@ -20,6 +20,7 @@ require 'blender/log'
 module Blender
   module Driver
     class Base
+      attr_reader :config
 
       ExecOutput = Struct.new(:exitstatus, :stdout, :stderr)
 
@@ -67,10 +68,6 @@ module Blender
           stdout: $stdout,
           stderr: $stderr
         }
-      end
-
-      def config
-        @config
       end
     end
   end
