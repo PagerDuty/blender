@@ -16,6 +16,7 @@
 # limitations under the License.
 
 require 'blender/drivers/ssh'
+require 'blender/drivers/ssh_multi'
 require 'blender/drivers/shellout'
 require 'blender/drivers/serf'
 require 'blender/drivers/serf_multi'
@@ -28,6 +29,8 @@ module Blender
       case type.to_sym
       when :ssh
         Driver::Ssh
+      when :ssh_multi
+        Driver::SshMulti
       when :local
         Driver::ShellOut
       when :ruby
