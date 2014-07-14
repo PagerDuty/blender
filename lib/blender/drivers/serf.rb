@@ -38,7 +38,7 @@ module Blender
          Timeout: (command.timeout || 15)*1e9.to_i
         }
         Serfx.connect(serf_config) do |conn|
-          conn.query(command.query, command.payload,) do |event|
+          conn.query(command.query, command.payload, query_opts) do |event|
             responses <<  event
             puts event.inspect
           end

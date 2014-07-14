@@ -18,7 +18,10 @@ module SpecHelper
     t
   end
   def create_serf_task(name)
-    Blender::Task::SerfTask.new(name)
+    Blender::Task::SerfTask.new(name).tap do |t|
+      t.query 'test-query'
+      t.payload 'test-payload'
+    end
   end
 end
 
