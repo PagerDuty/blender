@@ -24,6 +24,10 @@ module Blender
   module Driver
     class Serf < Base
 
+      def filter_by
+        @config[:filter_by]
+      end
+
       def raw_exec(command)
         responses = []
         Log.debug("Invoking serf query '#{command.query}' with payload '#{command.payload}' against #{@current_host}")
@@ -33,32 +37,51 @@ module Blender
           port: @config[:port],
           authkey: @config[:authkey]
         }
-        query_opts = {
-         FilterNodes: [@current_host],
-         Timeout: (command.timeout || 15)*1e9.to_i
-        }
         Serfx.connect(serf_config) do |conn|
-          conn.query(command.query, command.payload, query_opts) do |event|
+          conn.query(*query_opts(command)) do |event|
             responses <<  event
             puts event.inspect
           end
         end
-        exit_status = responses.size == 1 ? 0 : -1
-        ExecOutput.new(exit_status, responses.inspect, '')
+        ExecOutput.new(exit_status(responses), responses.inspect, '')
+      end
+
+      def exit_status(responses)
+        case filter_by
+        when :host
+          responses.size == 1 ? 0 : -1
+        when :tag
+          0
+        else
+          raise ArgumentError, "Unknown filter_by option: #{@config[:filter_by]}"
+        end
+      end
+
+      def query_opts(command)
+        opts = { Timeout: (command.timeout || 15)*1e9.to_i}
+        case filter_by
+        when :host
+          opts.merge!(FilterNodes: [@current_host])
+        when :tag
+          opts.merge!(FilterTags: {@config[:filter_tag] => @current_host})
+        else
+          raise ArgumentError, "Unknown filter_by option: #{@config[:filter_by]}"
+        end
+        [ command.query, command.payload, opts]
       end
 
       def execute(job)
         tasks = job.tasks
         hosts = job.hosts
         Log.debug("Serf execution tasks [#{tasks.inspect}]")
-        Log.debug("Serf query on hosts [#{hosts.inspect}]")
+        Log.debug("Serf query on #{filter_by}s [#{hosts.inspect}]")
         Array(hosts).each do |host|
           @current_host = host
           Array(tasks).each do |task|
             if evaluate_guards?(task)
-              Log.debug("Host:#{host}| Guards are valid")
+              Log.debug("#{filter_by}:#{host}| Guards are valid")
             else
-              Log.debug("Host:#{host}| Guards are invalid")
+              Log.debug("#{filter_by}:#{host}| Guards are invalid")
               run_task_command(task)
             end
           end
@@ -74,6 +97,11 @@ module Blender
             raise Exceptions::ExecutionFailed, "Failed to execute '#{task.command}'"
            end
          end
+      end
+
+      private
+      def default_config
+        super.merge(filter_by: :host)
       end
     end
   end
