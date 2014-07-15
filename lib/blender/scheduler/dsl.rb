@@ -16,16 +16,18 @@
 # limitations under the License.
 
 require 'blender/exceptions'
-require 'blender/scheduling_strategy'
+require 'blender/scheduling_strategies/default'
 require 'blender/tasks/base'
 require 'blender/tasks/ruby'
 require 'blender/tasks/ssh'
 require 'blender/tasks/serf'
 require 'blender/driver'
 require 'highline'
+require 'blender/utils/refinements'
 
 module Blender
   module SchedulerDSL
+    include Blender::Utils::Refinements
 
     def ask(msg, echo = false)
       HighLine.new.ask(msg){|q| q.echo = echo}
@@ -84,7 +86,14 @@ module Blender
     end
 
     def strategy(strategy)
-      @strategy = SchedulingStrategy.get(strategy)
+      require 'blender/scheduling_strategies/default'
+      klass = camelcase(strategy.to_s).to_sym
+      begin
+        @strategy = Blender::SchedulingStrategy.const_get(klass).new
+        @strategy.freeze
+      rescue NameError => e
+        raise Exceptions::UnknownSchedulingStrategy, e.message
+      end
     end
 
     def concurrency(value)

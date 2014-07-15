@@ -99,9 +99,18 @@ describe Blender::Scheduler do
         expect(task.driver).to be_kind_of(Blender::Driver::Ruby)
       end
     end
-    it '#strategy' do
-      expect(Blender::SchedulingStrategy).to receive(:get).with(:foo)
-      scheduler.strategy(:foo)
+    describe '#strategy' do
+      it '#should raise error for non-existent strategy' do
+        expect do
+          scheduler.strategy(:foo)
+        end.to raise_error(Blender::Exceptions::UnknownSchedulingStrategy)
+      end
+      it '#get default' do
+        expect(scheduler.strategy(:default)).to be_kind_of(Blender::SchedulingStrategy::Default)
+      end
+      it '#get per_host' do
+        expect(scheduler.strategy(:per_host)).to be_kind_of(Blender::SchedulingStrategy::PerHost)
+      end
     end
     it '#concurrency' do
       scheduler.concurrency(112)
