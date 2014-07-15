@@ -28,7 +28,7 @@ module Blender
         @config[:filter_by]
       end
 
-      def raw_exec(command)
+      def serf_query(command)
         responses = []
         Log.debug("Invoking serf query '#{command.query}' with payload '#{command.payload}' against #{@current_host}")
         Log.debug("Serf RPC address #{@config[:host]}:#{@config[:port]}")
@@ -43,6 +43,11 @@ module Blender
             puts event.inspect
           end
         end
+        responses
+      end
+
+      def raw_exec(command)
+        responses = serf_query(command)
         ExecOutput.new(exit_status(responses), responses.inspect, '')
       end
 

@@ -9,61 +9,29 @@ require 'pry'
 module Blender
   module Driver
     class SerfAsync < Serf
-
       def raw_exec(command)
-        Log.debug("Serf RPC address #{@config[:host]}:#{@config[:port]}")
-        begin
-          start(command)
-          until not_running?(command)
-            Log.debug('Job still running. sleeping for 10s')
-            sleep 10
-          end
-          reap_responses = reap(command)
-          ExecOutput.new(0, JSON.generate({sucess: true}))
-        rescue Exceptions::SerfAsyncJobError => e
-          ExecOutput.new(-1, e.to_s)
+        command.payload = 'start'
+        start_responses = serf_query(command)
+        loop do
+          sleep(@config[:check_interval])
+          break if command_finished?(command, start_responses)
         end
+        ExecOutput.new(exit_status(responses), responses.inspect, '')
       end
 
-      def not_running?(command)
-        checks = []
-        running = false
-        Serfx.connect(host: @config[:host], port: @config[:port]) do |conn|
-          conn.query(command, 'check', 'FilterNodes'=> [@current_host], 'Timeout'=> 20*1e9.to_i) do |event|
-            checks <<  event
-          end
-        end
-        if checks.empty?
-          raise Exceptions::SerfAsyncJobError, 'Failes to check status of job, no response received'
-        end
-        JSON.parse(checks.first['Payload'])['status'] != 'running'
+      def command_finished?(command, start_responses)
+        cmd = command.dup.tap{|c|c.payload = 'check'}
+        check_responses = serf_query(cmd)
       end
 
-      def reap(command)
-        responses = []
-        Serfx.connect(host: @config[:host], port: @config[:port]) do |conn|
-          conn.query(command, 'reap', 'FilterNodes'=> [@current_host], 'Timeout'=> 20*1e9.to_i) do |event|
-            responses <<  event
-          end
-        end
-        raise Exceptions::SerfAsyncJobError, 'Failes to reap job: No response received' if responses.empty?
-        unless responses.first['Payload'].strip == 'success'
-          raise ExecOutput::SerfAsyncJobError,  "Failed to reap job: #{responses.first.inspect}"
-        end
+      def reap_command?(command, start_responses)
+        cmd = command.dup.tap{|c|c.payload = 'reap'}
+        check_responses = serf_query(comd)
       end
 
-      def start(command)
-        Log.debug("Invoking serf query '#{command}' with payload 'start' against #{@current_host}")
-        responses = []
-        Serfx.connect(host: @config[:host], port: @config[:port]) do |conn|
-          conn.query(command, 'start', 'FilterNodes'=> [@current_host], 'Timeout'=> 20*1e9.to_i) do |event|
-            responses <<  event
-          end
-        end
-        raise Exceptions::SerfAsyncJobError, 'No response received' if responses.empty?
-        unless responses.first['Payload'].strip == 'success'
-          raise Exceptions::SerfAsyncJobError,  "Failed to reap job: #{responses.first.inspect}"
-        end
+      private
+      def default_config
+        super.merge(check_interval: 60)
       end
     end
   end
