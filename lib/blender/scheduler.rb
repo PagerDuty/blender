@@ -87,8 +87,9 @@ module Blender
       begin
         driver = job.driver || default_driver
         Log.debug("Running job #{job.inspect} with #{driver.inspect}")
+        puts job.hosts.inspect
         driver.execute(job)
-      rescue Exceptions::ExecutionFailed => e
+      rescue Exception => e
         @events.job_errored(job, e)
         if metadata[:ignore_failure]
           Log.warn("Exception: #{e.inspect} was suppressed, ignoring failure")

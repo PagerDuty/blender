@@ -35,6 +35,10 @@ module Blender
   module SchedulerDSL
     include Blender::Utils::Refinements
 
+    def log_level(level)
+      Blender::Log.level = level
+    end
+
     def ask(msg, echo = false)
       HighLine.new.ask(msg){|q| q.echo = echo}
     end
