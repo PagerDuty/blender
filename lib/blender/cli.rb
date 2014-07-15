@@ -45,7 +45,7 @@ module Blender
     def schedule
       sched = Blender::Timer.new
       des = File.read(options[:schedule])
-      sched.instance_eval(des)
+      sched.instance_eval(des, __FILE__, __LINE__)
       sched.join
     end
   end
