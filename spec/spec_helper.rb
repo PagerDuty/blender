@@ -34,4 +34,5 @@ RSpec.configure do |config|
     doc = double(Blender::Handlers::Doc).as_null_object
     allow(Blender::Handlers::Doc).to receive(:new).and_return(doc)
   end
+  config.backtrace_exclusion_patterns = []
 end

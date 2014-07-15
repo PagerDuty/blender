@@ -125,9 +125,7 @@ describe Blender::Scheduler do
       expect(scheduler.metadata[:members]).to eq(['a', 'b'])
     end
     it '#driver' do
-      scheduler.driver(:ssh) do |config|
-        config[:foo] = :bar
-      end
+      scheduler.global_driver(:ssh, foo: :bar)
       d = scheduler.default_driver
       expect(d).to be_kind_of(Blender::Driver::Ssh)
       expect(d.config[:foo]).to be(:bar)

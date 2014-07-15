@@ -17,7 +17,6 @@
 
 require 'blender/log'
 require 'blender/utils/thread_pool'
-require 'blender/driver'
 require 'blender/exceptions'
 require 'blender/scheduling_strategies/default'
 require 'blender/utils/thread_pool'
@@ -51,7 +50,7 @@ module Blender
     def run
       @strategy ||= SchedulingStrategy::Default.new
       @events.run_started(self)
-      @default_driver ||= Driver.get(:local).new(events: @events)
+      @default_driver ||= driver(:shell_out, events: @events)
       @events.job_computation_started(@strategy)
       jobs = @strategy.compute_jobs(@default_driver, @tasks, @metadata[:members])
       @events.job_computation_finished(self, jobs)

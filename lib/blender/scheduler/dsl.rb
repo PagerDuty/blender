@@ -21,9 +21,15 @@ require 'blender/tasks/base'
 require 'blender/tasks/ruby'
 require 'blender/tasks/ssh'
 require 'blender/tasks/serf'
-require 'blender/driver'
 require 'highline'
 require 'blender/utils/refinements'
+require 'blender/drivers/ssh'
+require 'blender/drivers/ssh_multi'
+require 'blender/drivers/shellout'
+require 'blender/drivers/serf'
+require 'blender/drivers/serf_multi'
+require 'blender/drivers/serf_async'
+require 'blender/drivers/ruby'
 
 module Blender
   module SchedulerDSL
@@ -39,7 +45,7 @@ module Blender
 
     def task(command)
       task = Blender::Task::Base.new(command)
-      task.use_driver(Driver.get(:local).new(events: @events))
+      task.use_driver(driver(:shell_out, events: @events))
       yield task if block_given?
       Log.debug("Appended task:#{task.inspect}")
       validate_driver!(task)
@@ -51,7 +57,7 @@ module Blender
       if @default_driver.is_a?(Blender::Driver::Ruby)
         task.use_driver(@default_driver)
       else
-        task.use_driver(Driver.get(:ruby).new(events: @events))
+        task.use_driver(driver(:ruby, events: @events))
       end
       yield task if block_given?
       Log.debug("Appended task:#{task.inspect}")
@@ -64,7 +70,7 @@ module Blender
       if @default_driver.is_a?(Blender::Driver::Ssh)
         task.use_driver(@default_driver)
       else
-        task.use_driver(Driver.get(:ssh).new(events: @events))
+        task.use_driver(driver(:ssh, events: @events))
       end
       yield task if block_given?
       Log.debug("Appended task:#{task.inspect}")
@@ -77,7 +83,7 @@ module Blender
       if @default_driver.is_a?(Blender::Driver::Serf)
         task.use_driver(@default_driver)
       else
-        task.use_driver(Driver.get(:serf).new(events: @events))
+        task.use_driver(driver(:serf, events: @events))
       end
       yield task if block_given?
       Log.debug("Appended task:#{task.inspect}")
@@ -86,7 +92,6 @@ module Blender
     end
 
     def strategy(strategy)
-      require 'blender/scheduling_strategies/default'
       klass = camelcase(strategy.to_s).to_sym
       begin
         @strategy = Blender::SchedulingStrategy.const_get(klass).new
@@ -110,13 +115,24 @@ module Blender
     end
 
     def driver(type, opts = {})
+      klass = camelcase(type.to_s).to_sym
       config = opts.merge(events: @events)
       yield config if block_given?
-      @default_driver = Driver.get(type).new(config)
+      begin
+        Blender::Driver.const_get(klass).new(config)
+      rescue NameError => e
+        raise Exceptions::UnknownDriver, e.message
+      end
+    end
+
+
+    def global_driver(type, opts = {})
+      @default_driver = driver(type, opts)
+      @default_driver.freeze
     end
 
     def register_driver(type, name, config = nil)
-      @registered_drivers[name] = Driver.get(type).new(config.merge(events: @events))
+      @registered_drivers[name] = driver(type, config.merge(events: @events).dup)
     end
 
     private
