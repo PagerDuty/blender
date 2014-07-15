@@ -84,10 +84,10 @@ module Blender
     end
 
     def run_job(job)
-      Log.debug("Running job #{job.inspect}")
       @events.job_started(job)
       begin
         driver = job.driver || default_driver
+        Log.debug("Running job #{job.inspect} with #{driver.inspect}")
         driver.execute(job)
       rescue Exceptions::ExecutionFailed => e
         @events.job_errored(job, e)

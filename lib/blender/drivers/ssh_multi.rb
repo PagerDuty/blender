@@ -1,11 +1,11 @@
 require 'net/ssh'
 require 'blender/exceptions'
-require 'blender/drivers/base'
+require 'blender/drivers/ssh'
 require 'chef/monkey_patches/net-ssh-multi'
 
 module Blender
   module Driver
-    class SshMulti < Base
+    class SshMulti < Ssh
 
       def execute(job)
         tasks = job.tasks
@@ -22,17 +22,6 @@ module Blender
           end
         end
         @session.loop
-      end
-
-      def run_task_command(task)
-         e_status = raw_exec(task.command).exitstatus
-         if e_status != 0
-           if task.metadata[:ignore_failure]
-             Log.warn('Ignore failure is set, skipping failure')
-           else
-            raise Exceptions::ExecutionFailed, "Failed to execute '#{task.command}'"
-           end
-         end
       end
 
       def raw_exec(command)
@@ -68,12 +57,11 @@ module Blender
         channel.wait
         ExecOutput.new(exit_status, stdout, stderr)
       end
+      def concurrency
+        @config[:concurrency]
+      end
 
       private
-
-      def fixup_sudo(command)
-        command.sub(/^sudo/, 'sudo -p \'blender sudo password: \'')
-      end
 
       def ssh_multi_session(hosts)
         user = @config[:user] || ENV['USER']
@@ -86,13 +74,19 @@ module Blender
           end
         end
         s = Net::SSH::Multi.start(
-          concurrent_connections: 5,
+          concurrent_connections: concurrency,
           on_error: error_handler
         )
         hosts.each do |h|
           s.use(user + '@' + h)
         end
         s
+      end
+
+      private
+
+      def default_config
+        super.merge(concurrency: 5)
       end
     end
   end
