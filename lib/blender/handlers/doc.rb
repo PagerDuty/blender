@@ -57,7 +57,7 @@ module Blender
 
       def job_computation_finished(scheduler, jobs)
         delta = Time.now - @compute_start_time
-        ui.puts(" #{jobs.size} subtasks computed using '#{@strategy}' strategy")
+        ui.puts(" #{jobs.size} job(s) computed using '#{@strategy}' strategy")
       end
 
       def skipping_for_why_run(desc)

@@ -19,12 +19,27 @@ require 'blender/drivers/base'
 
 module Blender
   module Driver
-    class Ruby < Local
-      def raw_exec(command)
+    class Ruby < Base
+
+      def execute(job)
+        tasks = job.tasks
+        hosts = job.hosts
+        Array(tasks).each do |task|
+          Array(hosts).each do |host|
+            converge_by "will be executing: #{task.command.inspect}" do
+              cmd = raw_exec(task.command, host)
+              if cmd.exitstatus != 0
+                raise Exceptions::ExecutionFailed, cmd.stderr
+              end
+            end
+          end
+        end
+      end
+      def raw_exec(command, host)
         exit_status = 0
         stderr = ''
         begin
-          command.call
+          command.call(host)
         rescue Exception => e
           stderr = e.message
           exit_status = -1

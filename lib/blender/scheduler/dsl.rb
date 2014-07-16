@@ -151,12 +151,12 @@ module Blender
 
     def serf_discover(options = {})
       search_opts = options.delete(:search) || {}
-      build_discovery(:serf).search(options)
+      build_discovery(:serf, options).search(search_opts)
     end
 
     def chef_discover(options = {})
       search_opts = options.delete(:search) || {}
-      build_discovery(:chef).search(options)
+      build_discovery(:chef, options).search(search_opts)
     end
 
     private
