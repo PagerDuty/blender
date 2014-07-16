@@ -85,7 +85,6 @@ module Blender
       begin
         driver = job.driver || default_driver
         Log.debug("Running job #{job.inspect} with #{driver.inspect}")
-        puts job.hosts.inspect
         driver.execute(job)
       rescue Exception => e
         @events.job_errored(job, e)
