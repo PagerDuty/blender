@@ -1,6 +1,7 @@
 require 'spec_helper'
+require 'blender/discoveries/serf'
 
-describe Blender::Discovery::SerfDiscovery do
+describe Blender::Discovery::Serf do
   let(:discovery){described_class.new(host: '1.2.3.4')}
   it '#search' do
     conn = double('connection')

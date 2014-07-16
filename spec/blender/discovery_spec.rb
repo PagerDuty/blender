@@ -1,36 +1,30 @@
 require 'spec_helper'
-describe Blender::Discovery do
-  let(:dummy_hosts) {['host1', 'host2', 'host3']}
+describe Blender::Scheduler do
+
   let(:scheduler) do
     Blender::Scheduler.new('test')
   end
-  let(:chef_discovery) do
-    Blender::Discovery::ChefDiscovery
-  end
-  let(:serf_discovery) do
-    Blender::Discovery::SerfDiscovery
-  end
-  let(:test_discovery) do
-    scheduler.registered_discoveries['test']
-  end
-  it 'should return ChefDiscover is type :chef is passed' do
-    expect(described_class.get(:chef)).to eq(chef_discovery)
+  it 'should return Chef is type :chef is passed' do
+    allow_any_instance_of(Blender::Discovery::Chef).to(
+      receive(:search).and_return(['a', 'b', 'c'])
+    )
+    expect(scheduler.chef_discover(search: 'name:xx')).to eq(['a', 'b', 'c'])
   end
   it 'should return SerfDiscover is type :serf is passed' do
-    expect(described_class.get(:serf)).to eq(serf_discovery)
+    allow_any_instance_of(Blender::Discovery::Serf).to(
+      receive(:search).and_return([1, 2, 3])
+    )
+    expect(scheduler.serf_discover).to eq([1,2,3])
   end
   it '#register_discovery' do
     scheduler.register_discovery(:chef, 'test')
-    expect(test_discovery).to be_kind_of(chef_discovery)
+    expect(scheduler.registered_discoveries['test']).to be_kind_of(Blender::Discovery::Chef)
   end
   it '#discover_by' do
+    allow_any_instance_of(Blender::Discovery::Chef).to(
+      receive(:search).and_return(['x', 'y', 'z'])
+    )
     scheduler.register_discovery(:chef, 'test')
-    allow(test_discovery).to receive(:search).and_return(dummy_hosts)
-    expect(scheduler.discover_by('test')).to eq(dummy_hosts)
-  end
-  it '#discover' do
-    dummy_discovery = double(chef_discovery, search: dummy_hosts)
-    expect(chef_discovery).to receive(:new).and_return(dummy_discovery)
-    expect(scheduler.discover(:chef)).to eq(dummy_hosts)
+    expect(scheduler.discover_by('test')).to eq(['x', 'y', 'z'])
   end
 end

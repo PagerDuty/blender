@@ -1,6 +1,7 @@
 require 'spec_helper'
+require 'blender/discoveries/chef'
 
-describe Blender::Discovery::ChefDiscovery do
+describe Blender::Discovery::Chef do
   let(:discovery){described_class.new}
   it '#search' do
     query = double(Chef::Search::Query)

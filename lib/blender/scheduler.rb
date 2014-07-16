@@ -24,13 +24,11 @@ require 'blender/scheduler/dsl'
 require 'blender/event_dispatcher'
 require 'blender/handlers/doc'
 require 'blender/tasks/base'
-require 'blender/discovery'
 
 module Blender
   class Scheduler
 
     include SchedulerDSL
-    include Discovery
 
     attr_reader :metadata, :name, :registered_discoveries
     attr_reader :events, :tasks, :default_driver, :registered_drivers

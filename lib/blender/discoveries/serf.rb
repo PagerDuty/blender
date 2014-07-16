@@ -19,7 +19,7 @@ require 'serfx'
 
 module Blender
   module Discovery
-    class SerfDiscovery
+    class Serf
       def initialize(opts = {})
         @config = opts
       end
