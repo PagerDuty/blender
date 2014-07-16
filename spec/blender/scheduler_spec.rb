@@ -33,9 +33,9 @@ describe Blender::Scheduler do
     end
     describe '#ssh_task' do
       before do
-        scheduler.ssh_task('test') do |t|
-          t.members ['a']
-          t.execute('ls -l')
+        scheduler.ssh_task('test') do
+          members ['a']
+          execute('ls -l')
         end
       end
       it 'should have correct hosts list' do
@@ -53,11 +53,11 @@ describe Blender::Scheduler do
     end
     describe'#serf_task' do
       before do
-        scheduler.serf_task('test') do |t|
-          t.members ['b']
-          t.query 'foo'
-          t.payload 'bar'
-          t.no_ack true
+        scheduler.serf_task('test') do
+          members ['b']
+          query 'foo'
+          payload 'bar'
+          no_ack true
         end
       end
       it 'should have correct host list' do

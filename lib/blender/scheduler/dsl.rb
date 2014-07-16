@@ -59,33 +59,33 @@ module Blender
       task
     end
 
-    def task(name)
+    def task(name, &block)
       task = build_task(name, :shell_out)
-      yield task if block_given?
+      task.instance_eval(&block) if block_given?
       Log.debug("Appended task:#{task.inspect}")
       validate_driver!(task, :shell_out)
       @tasks << task
     end
 
-    def ruby_task(name)
+    def ruby_task(name, &block)
       task = build_task(name, :ruby)
-      yield task if block_given?
+      task.instance_eval(&block) if block_given?
       Log.debug("Appended task:#{task.inspect}")
       validate_driver!(task, :ruby)
       @tasks << task
     end
 
-    def ssh_task(name)
+    def ssh_task(name, &block)
       task = build_task(name, :ssh)
-      yield task if block_given?
+      task.instance_eval(&block) if block_given?
       Log.debug("Appended task:#{task.inspect}")
       validate_driver!(task, :ssh)
       @tasks << task
     end
 
-    def serf_task(name)
+    def serf_task(name, &block)
       task = build_task(name, :serf)
-      yield task if block_given?
+      task.instance_eval(&block) if block_given?
       Log.debug("Appended task:#{task.inspect}")
       validate_driver!(task, :serf)
       @tasks << task
