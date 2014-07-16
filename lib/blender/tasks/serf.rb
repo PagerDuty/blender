@@ -2,7 +2,7 @@ require 'blender/tasks/base'
 
 module Blender
   module Task
-    class SerfTask < Blender::Task::Base
+    class Serf < Blender::Task::Base
 
       SerfQuery = Struct.new(:query, :payload, :timeout, :noack)
 

@@ -19,7 +19,7 @@ require 'blender/tasks/base'
 
 module Blender
   module Task
-    class RubyTask < Blender::Task::Base
+    class Ruby < Blender::Task::Base
 
       attr_reader :code_block
 

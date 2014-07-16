@@ -45,7 +45,7 @@ describe Blender::Scheduler do
         expect(task.command).to eq('ls -l')
       end
       it 'should use ssh task subclass' do
-        expect(task).to be_kind_of(Blender::Task::SSHTask)
+        expect(task).to be_kind_of(Blender::Task::Ssh)
       end
       it 'should use the ssh driver' do
         expect(task.driver).to be_kind_of(Blender::Driver::Ssh)
@@ -64,10 +64,10 @@ describe Blender::Scheduler do
         expect(task.hosts).to eq(['b'])
       end
       it 'should use the serf task subclass' do
-        expect(task).to be_kind_of(Blender::Task::SerfTask)
+        expect(task).to be_kind_of(Blender::Task::Serf)
       end
       it 'should use the serquery inner class for command' do
-        expect(task.command).to be_kind_of(Blender::Task::SerfTask::SerfQuery)
+        expect(task.command).to be_kind_of(Blender::Task::Serf::SerfQuery)
       end
       it 'should use serf driver subclass' do
         expect(task.driver).to be_kind_of(Blender::Driver::Serf)
@@ -90,7 +90,7 @@ describe Blender::Scheduler do
         expect(task.hosts).to eq(['c'])
       end
       it 'should use the ruby task subclass' do
-        expect(task).to be_kind_of(Blender::Task::RubyTask)
+        expect(task).to be_kind_of(Blender::Task::Base)
       end
       it 'should assign the proc as command' do
         expect(task.command).to be_kind_of(Proc)

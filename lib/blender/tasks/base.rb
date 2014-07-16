@@ -83,5 +83,6 @@ module Blender
         }
       end
     end
+    class ShellOut < Base; end
   end
 end

@@ -47,58 +47,54 @@ module Blender
       @events.register(handler)
     end
 
-    def task(command)
-      task = Blender::Task::Base.new(command)
-      task.use_driver(driver(:shell_out, events: @events))
+    def build_task(name, type)
+      task_klass = Blender::Task.const_get(camelcase(type.to_s).to_sym)
+      driver_klass = Blender::Driver.const_get(camelcase(type.to_s).to_sym)
+      task = task_klass.new(name)
+      if @default_driver.is_a?(driver_klass)
+        task.use_driver(@default_driver)
+      else
+        task.use_driver(driver(type, events: @events))
+      end
+      task
+    end
+
+    def task(name)
+      task = build_task(name, :shell_out)
       yield task if block_given?
       Log.debug("Appended task:#{task.inspect}")
-      validate_driver!(task)
+      validate_driver!(task, :shell_out)
       @tasks << task
     end
 
     def ruby_task(name)
-      task = Blender::Task::RubyTask.new(name)
-      if @default_driver.is_a?(Blender::Driver::Ruby)
-        task.use_driver(@default_driver)
-      else
-        task.use_driver(driver(:ruby, events: @events))
-      end
+      task = build_task(name, :ruby)
       yield task if block_given?
       Log.debug("Appended task:#{task.inspect}")
-      validate_driver!(task, Blender::Driver::Ruby)
+      validate_driver!(task, :ruby)
       @tasks << task
     end
 
     def ssh_task(name)
-      task = Blender::Task::SSHTask.new(name)
-      if @default_driver.is_a?(Blender::Driver::Ssh)
-        task.use_driver(@default_driver)
-      else
-        task.use_driver(driver(:ssh, events: @events))
-      end
+      task = build_task(name, :ssh)
       yield task if block_given?
       Log.debug("Appended task:#{task.inspect}")
-      validate_driver!(task, Blender::Driver::Ssh)
+      validate_driver!(task, :ssh)
       @tasks << task
     end
 
     def serf_task(name)
-      task = Blender::Task::SerfTask.new(name)
-      if @default_driver.is_a?(Blender::Driver::Serf)
-        task.use_driver(@default_driver)
-      else
-        task.use_driver(driver(:serf, events: @events))
-      end
+      task = build_task(name, :serf)
       yield task if block_given?
       Log.debug("Appended task:#{task.inspect}")
-      validate_driver!(task, Blender::Driver::Serf)
+      validate_driver!(task, :serf)
       @tasks << task
     end
 
     def strategy(strategy)
-      klass = camelcase(strategy.to_s).to_sym
+      klass_name = camelcase(strategy.to_s).to_sym
       begin
-        @strategy = Blender::SchedulingStrategy.const_get(klass).new
+        @strategy = Blender::SchedulingStrategy.const_get(klass_name).new
         @strategy.freeze
       rescue NameError => e
         raise Exceptions::UnknownSchedulingStrategy, e.message
@@ -119,11 +115,11 @@ module Blender
     end
 
     def driver(type, opts = {})
-      klass = camelcase(type.to_s).to_sym
+      klass_name = camelcase(type.to_s).to_sym
       config = opts.merge(events: @events)
       yield config if block_given?
       begin
-        Blender::Driver.const_get(klass).new(config)
+        Blender::Driver.const_get(klass_name).new(config)
       rescue NameError => e
         raise Exceptions::UnknownDriver, e.message
       end
@@ -140,7 +136,8 @@ module Blender
     end
 
     private
-    def validate_driver!(t, klass = nil)
+    def validate_driver!(t, type)
+      klass = Blender::Driver.const_get(camelcase(type.to_s).to_sym)
       case t.driver
       when String
         unless @registered_drivers.key?(t.driver)

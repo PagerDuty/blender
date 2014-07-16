@@ -28,7 +28,7 @@ module Blender
         @config[:filter_by]
       end
 
-      def serf_query(command)
+      def serf_query(command, host)
         responses = []
         Log.debug("Invoking serf query '#{command.query}' with payload '#{command.payload}' against #{@current_host}")
         Log.debug("Serf RPC address #{@config[:host]}:#{@config[:port]}")
@@ -38,7 +38,7 @@ module Blender
           authkey: @config[:authkey]
         }
         Serfx.connect(serf_config) do |conn|
-          conn.query(*query_opts(command)) do |event|
+          conn.query(*query_opts(command, host)) do |event|
             responses <<  event
             puts event.inspect
           end
@@ -46,8 +46,8 @@ module Blender
         responses
       end
 
-      def raw_exec(command)
-        responses = serf_query(command)
+      def raw_exec(command, host)
+        responses = serf_query(command, host)
         ExecOutput.new(exit_status(responses), responses.inspect, '')
       end
 
@@ -62,13 +62,13 @@ module Blender
         end
       end
 
-      def query_opts(command)
+      def query_opts(command, host)
         opts = { Timeout: (command.timeout || 15)*1e9.to_i}
         case filter_by
         when :host
-          opts.merge!(FilterNodes: [@current_host])
+          opts.merge!(FilterNodes: [host])
         when :tag
-          opts.merge!(FilterTags: {@config[:filter_tag] => @current_host})
+          opts.merge!(FilterTags: {@config[:filter_tag] => host})
         else
           raise ArgumentError, "Unknown filter_by option: #{@config[:filter_by]}"
         end
@@ -81,20 +81,19 @@ module Blender
         Log.debug("Serf execution tasks [#{tasks.inspect}]")
         Log.debug("Serf query on #{filter_by}s [#{hosts.inspect}]")
         Array(hosts).each do |host|
-          @current_host = host
           Array(tasks).each do |task|
             if evaluate_guards?(task)
               Log.debug("#{filter_by}:#{host}| Guards are valid")
             else
               Log.debug("#{filter_by}:#{host}| Guards are invalid")
-              run_task_command(task)
+              run_task_command(task, host)
             end
           end
         end
       end
 
-      def run_task_command(task)
-         e_status = raw_exec(task.command).exitstatus
+      def run_task_command(task, host)
+         e_status = raw_exec(task.command, host).exitstatus
          if e_status != 0
            if task.metadata[:ignore_failure]
              Log.warn('Ignore failure is set, skipping failure')
