@@ -4,7 +4,8 @@ module Blender
   module Task
     class Serf < Blender::Task::Base
 
-      SerfQuery = Struct.new(:query, :payload, :timeout, :noack)
+
+      SerfQuery = Struct.new(:query, :payload, :timeout, :noack, :process)
 
       def initialize(name, metadata = {})
         super
@@ -29,6 +30,10 @@ module Blender
 
       def no_ack(bool)
         @command.noack = bool
+      end
+
+      def process(callback)
+        @command.process = callback
       end
 
       def command

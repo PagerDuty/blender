@@ -40,7 +40,7 @@ module Blender
         Serfx.connect(serf_config) do |conn|
           conn.query(*query_opts(command, host)) do |event|
             responses <<  event
-            puts event.inspect
+            stdout.puts event.inspect
           end
         end
         responses
@@ -48,6 +48,9 @@ module Blender
 
       def raw_exec(command, host)
         responses = serf_query(command, host)
+        if command.process
+          command.process.call(responses)
+        end
         ExecOutput.new(exit_status(responses), responses.inspect, '')
       end
 

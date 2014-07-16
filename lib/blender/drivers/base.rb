@@ -59,14 +59,22 @@ module Blender
         raise RuntimeError, 'this method must be overridden'
       end
 
+      def stdout
+        @config[:stdout]
+      end
+
+      def stderr
+        @config[:stdout]
+      end
+
       private
       def default_config
         {
           timout: 60, 
           ignore_failure: false,
           why_run: false,
-          stdout: $stdout,
-          stderr: $stderr
+          stdout: File.open(File::NULL, 'w'),
+          stdout: File.open(File::NULL, 'w')
         }
       end
     end
