@@ -26,7 +26,7 @@ module Blender
         @name = name
         @metadata = default_metadata.merge(metadata)
         @guards = {not_if: [], only_if: []}
-        @hosts = nil
+        @hosts = []
         @driver = nil
         @before_hooks = []
         @after_hooks = []

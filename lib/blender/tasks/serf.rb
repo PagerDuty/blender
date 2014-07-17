@@ -10,6 +10,7 @@ module Blender
       def initialize(name, metadata = {})
         super
         @command = SerfQuery.new
+        @command.query = name
       end
 
       def execute(&block)
