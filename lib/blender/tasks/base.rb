@@ -14,10 +14,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+require 'blender/discovery'
 
 module Blender
   module Task
     class Base
+      include Blender::Discovery
       attr_reader :guards, :metadata, :name, :hosts, :driver
 
       def initialize(name, metadata = {})

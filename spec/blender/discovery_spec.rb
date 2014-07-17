@@ -16,15 +16,4 @@ describe Blender::Scheduler do
     )
     expect(scheduler.serf_discover).to eq([1,2,3])
   end
-  it '#register_discovery' do
-    scheduler.register_discovery(:chef, 'test')
-    expect(scheduler.registered_discoveries['test']).to be_kind_of(Blender::Discovery::Chef)
-  end
-  it '#discover_by' do
-    allow_any_instance_of(Blender::Discovery::Chef).to(
-      receive(:search).and_return(['x', 'y', 'z'])
-    )
-    scheduler.register_discovery(:chef, 'test')
-    expect(scheduler.discover_by('test')).to eq(['x', 'y', 'z'])
-  end
 end

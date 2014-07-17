@@ -30,12 +30,12 @@ require 'blender/drivers/serf'
 require 'blender/drivers/serf_multi'
 require 'blender/drivers/serf_async'
 require 'blender/drivers/ruby'
-require 'blender/discoveries/chef'
-require 'blender/discoveries/serf'
+require 'blender/discovery'
 
 module Blender
   module SchedulerDSL
     include Blender::Utils::Refinements
+    include Blender::Discovery
 
     def log_level(level)
       Blender::Log.level = level
@@ -43,6 +43,26 @@ module Blender
 
     def ask(msg, echo = false)
       HighLine.new.ask(msg){|q| q.echo = echo}
+    end
+
+    def driver(type, opts = {})
+      klass_name = camelcase(type.to_s).to_sym
+      config = opts.merge(events: @events)
+      yield config if block_given?
+      begin
+        Blender::Driver.const_get(klass_name).new(config)
+      rescue NameError => e
+        raise Exceptions::UnknownDriver, e.message
+      end
+    end
+
+    def global_driver(type, opts = {})
+      @default_driver = driver(type, opts)
+      @default_driver.freeze
+    end
+
+    def register_driver(type, name, config = nil)
+      @registered_drivers[name] = driver(type, config.merge(events: @events).dup)
     end
 
     def register_handler(handler)
@@ -59,11 +79,6 @@ module Blender
         task.use_driver(driver(type, events: @events))
       end
       task
-    end
-
-    def build_discovery(type, opts = {})
-      disco_klass = Blender::Discovery.const_get(camelcase(type.to_s).to_sym)
-      disco_klass.new(opts)
     end
 
     def task(name, &block)
@@ -121,43 +136,6 @@ module Blender
       @metadata[:members] = members
     end
 
-    def driver(type, opts = {})
-      klass_name = camelcase(type.to_s).to_sym
-      config = opts.merge(events: @events)
-      yield config if block_given?
-      begin
-        Blender::Driver.const_get(klass_name).new(config)
-      rescue NameError => e
-        raise Exceptions::UnknownDriver, e.message
-      end
-    end
-
-    def global_driver(type, opts = {})
-      @default_driver = driver(type, opts)
-      @default_driver.freeze
-    end
-
-    def register_driver(type, name, config = nil)
-      @registered_drivers[name] = driver(type, config.merge(events: @events).dup)
-    end
-
-    def register_discovery(type, name, opts = {})
-      @registered_discoveries[name] = build_discovery(type)
-    end
-
-    def discover_by(name, opts ={})
-      @registered_discoveries[name].search(opts)
-    end
-
-    def serf_discover(options = {})
-      search_opts = options.delete(:search) || {}
-      build_discovery(:serf, options).search(search_opts)
-    end
-
-    def chef_discover(options = {})
-      search_opts = options.delete(:search) || {}
-      build_discovery(:chef, options).search(search_opts)
-    end
 
     private
     def validate_driver!(t, type)
