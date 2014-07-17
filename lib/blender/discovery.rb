@@ -1,8 +1,10 @@
 require 'blender/discoveries/chef'
 require 'blender/discoveries/serf'
+require 'blender/utils/refinements'
 
 module Blender
   module Discovery
+    include Blender::Utils::Refinements
     def build_discovery(type, opts = {})
       disco_klass = Blender::Discovery.const_get(camelcase(type.to_s).to_sym)
       disco_klass.new(opts)
