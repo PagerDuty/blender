@@ -23,14 +23,6 @@ module Blender
 
       attr_reader :code_block
 
-      def not_if(&block)
-        @guards[:not_if] << block
-      end
-
-      def only_if(&block)
-        @guards[:only_if] << block
-      end
-
       def execute(&block)
         @command = block
       end
