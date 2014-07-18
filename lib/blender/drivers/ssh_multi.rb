@@ -14,17 +14,15 @@ module Blender
         Log.debug("SSH on hosts [#{hosts.inspect}]")
         session = ssh_multi_session(hosts)
         Array(tasks).each do |task|
-          if evaluate_guards?(task)
-            Log.debug("Task:#{task.name}| Guards are valid")
-          else
-            Log.debug("Task:#{task.name}| Guards are invalid")
-            run_task_command(task, session)
+          cmd = run_command(task.command, session)
+          if cmd.exitstatus != 0 and !task.metadata[:ignore_failure]
+            raise Exceptions::ExecutionFailed, cmd.stderr
           end
         end
         session.loop
       end
 
-      def raw_exec(command, session)
+      def run_command(command, session)
         password = @config[:password]
         command = fixup_sudo(command)
         exit_status = 0

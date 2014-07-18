@@ -22,25 +22,32 @@ module Blender
     class Ruby < Base
 
       def execute(tasks, hosts)
+        Log.debug("Serf query on #{filter_by}s [#{hosts.inspect}]")
         tasks.each do |task|
           hosts.each do |host|
-            converge_by "will be executing: #{task.command.inspect}" do
-              cmd = raw_exec(task.command, host)
-              if cmd.exitstatus != 0
-                raise Exceptions::ExecutionFailed, cmd.stderr
-              end
+            cmd = run_command(task.command, host)
+            if cmd.exitstatus != 0 and !task.metadata[:ignore_failure]
+              raise Exceptions::ExecutionFailed, cmd.stderr
             end
           end
         end
       end
-      def raw_exec(command, host)
+
+      def run_command(command, host)
         exit_status = 0
         stderr = ''
+        current_stdout = STDOUT.clone
+        current_stderr = STDERR.clone
         begin
+          STDOUT.reopen(stdout)
+          STDERR.reopen(stderr)
           command.call(host)
         rescue Exception => e
           stderr = e.message
           exit_status = -1
+        ensure
+          STDOUT.reopen(current_stdout)
+          STDERR.reopen(current_stderr)
         end
         ExecOutput.new(exit_status, '', stderr)
       end

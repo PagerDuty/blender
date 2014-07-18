@@ -20,12 +20,26 @@ require 'blender/drivers/local'
 
 module Blender
   module Driver
-    class ShellOut < Local
-      def raw_exec(command)
+    class ShellOut < Base
+      def execute(tasks, hosts)
+        verify_local_host!(hosts)
+        tasks.each do |task|
+          cmd = run_command(task.command)
+          if cmd.exitstatus != 0 and !task.metadata[:ignore_failure]
+            raise Exceptions::ExecutionFailed, cmd.stderr
+          end
+        end
+      end
+      def run_command(command)
         cmd = Mixlib::ShellOut.new(command)
         cmd.live_stream = config[:stdout]
         cmd.run_command
         ExecOutput.new(cmd.exitstatus, cmd.stdout, cmd.stderr)
+      end
+      def verify_local_host!(hosts)
+        unless hosts.all?{|h|h == 'localhost'}
+          raise Exceptions::UnsupportedFeature, 'This driver does not support any host other than localhost'
+        end
       end
     end
   end

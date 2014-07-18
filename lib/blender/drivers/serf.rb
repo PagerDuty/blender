@@ -46,7 +46,7 @@ module Blender
         responses
       end
 
-      def raw_exec(command, host)
+      def run_command(command, host)
         responses = serf_query(command, host)
         if command.process
           command.process.call(responses)
@@ -79,29 +79,12 @@ module Blender
       end
 
       def execute(tasks, hosts)
-        Log.debug("Serf execution tasks [#{tasks.inspect}]")
         Log.debug("Serf query on #{filter_by}s [#{hosts.inspect}]")
-        Array(tasks).each do |task|
+        tasks.each do |task|
           hosts.each do |host|
-            if evaluate_guards?(task)
-              Log.debug("#{filter_by}:#{host}| Guards are valid")
-            else
-              Log.debug("#{filter_by}:#{host}| Guards are invalid")
-              run_task_command(task, host)
-            end
+            run_command(task.command, host)
           end
         end
-      end
-
-      def run_task_command(task, host)
-         e_status = raw_exec(task.command, host).exitstatus
-         if e_status != 0
-           if task.metadata[:ignore_failure]
-             Log.warn('Ignore failure is set, skipping failure')
-           else
-            raise Exceptions::ExecutionFailed, "Failed to execute '#{task.command}'"
-           end
-         end
       end
 
       private

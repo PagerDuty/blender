@@ -29,29 +29,16 @@ module Blender
         Array(hosts).each do |host|
           session = ssh_session(host)
           Array(tasks).each do |task|
-            if evaluate_guards?(task)
-              Log.debug("Host:#{host}| Guards are valid")
-            else
-              Log.debug("Host:#{host}| Guards are invalid")
-              run_task_command(task, session)
+            cmd = run_command(task.command, session)
+            if cmd.exitstatus != 0 and !task.metadata[:ignore_failure]
+              raise Exceptions::ExecutionFailed, cmd.stderr
             end
           end
           session.loop
         end
       end
 
-      def run_task_command(task, session)
-         e_status = raw_exec(task.command, session).exitstatus
-         if e_status != 0
-           if task.metadata[:ignore_failure]
-             Log.warn('Ignore failure is set, skipping failure')
-           else
-            raise Exceptions::ExecutionFailed, "Failed to execute '#{task.command}'"
-           end
-         end
-      end
-
-      def raw_exec(command, session)
+      def run_command(command, session)
         password = @config[:password]
         command = fixup_sudo(command)
         exit_status = 0
