@@ -42,8 +42,6 @@ module Blender
         password = @config[:password]
         command = fixup_sudo(command)
         exit_status = 0
-        stdout = config[:stdout] || File.open(File::NULL, 'w')
-        stderr = config[:stderr] || File.open(File::NULL, 'w')
         channel = session.open_channel do |ch|
           ch.request_pty
           ch.exec(command) do |ch, success|

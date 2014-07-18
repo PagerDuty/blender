@@ -32,9 +32,13 @@ module Blender
       end
       def run_command(command)
         cmd = Mixlib::ShellOut.new(command)
-        cmd.live_stream = config[:stdout]
-        cmd.run_command
-        ExecOutput.new(cmd.exitstatus, cmd.stdout, cmd.stderr)
+        begin
+          cmd.live_stream = stdout
+          cmd.run_command
+          ExecOutput.new(cmd.exitstatus, cmd.stdout, cmd.stderr)
+        rescue Errno::ENOENT => e
+          ExecOutput.new(-1, '', e.message)
+        end
       end
       def verify_local_host!(hosts)
         unless hosts.all?{|h|h == 'localhost'}
