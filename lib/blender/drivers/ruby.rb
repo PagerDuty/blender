@@ -22,7 +22,6 @@ module Blender
     class Ruby < Base
 
       def execute(tasks, hosts)
-        Log.debug("Serf query on #{filter_by}s [#{hosts.inspect}]")
         tasks.each do |task|
           hosts.each do |host|
             cmd = run_command(task.command, host)
@@ -35,7 +34,7 @@ module Blender
 
       def run_command(command, host)
         exit_status = 0
-        stderr = ''
+        err = ''
         current_stdout = STDOUT.clone
         current_stderr = STDERR.clone
         begin
@@ -43,13 +42,13 @@ module Blender
           STDERR.reopen(stderr)
           command.call(host)
         rescue Exception => e
-          stderr = e.message
+          err = e.message
           exit_status = -1
         ensure
           STDOUT.reopen(current_stdout)
           STDERR.reopen(current_stderr)
         end
-        ExecOutput.new(exit_status, '', stderr)
+        ExecOutput.new(exit_status, '', err)
       end
     end
   end
