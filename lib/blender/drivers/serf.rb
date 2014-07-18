@@ -88,6 +88,7 @@ module Blender
       end
 
       private
+
       def default_config
         super.merge(filter_by: :host)
       end
