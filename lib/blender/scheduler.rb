@@ -50,7 +50,7 @@ module Blender
       @events.run_started(self)
       @default_driver ||= driver(:shell_out, events: @events)
       @events.job_computation_started(@strategy)
-      jobs = @strategy.compute_jobs(@default_driver, @tasks, @metadata[:members])
+      jobs = @strategy.compute_jobs(@tasks)
       @events.job_computation_finished(self, jobs)
       if metadata[:concurrency] > 1
         concurrent_run(jobs)
@@ -83,9 +83,8 @@ module Blender
     def run_job(job)
       @events.job_started(job)
       begin
-        driver = job.driver || default_driver
-        Log.debug("Running job #{job.inspect} with #{driver.inspect}")
-        driver.execute(job)
+        Log.debug("Running job #{job.inspect}")
+        job.run
       rescue Exception => e
         @events.job_errored(job, e)
         if metadata[:ignore_failure]
@@ -99,7 +98,7 @@ module Blender
 
     def default_metadata
       { timout: 60, ignore_failure: false, concurrency: 0,
-       handlers: [], members: ['localhost'] }
+       handlers: [], members: [] }
     end
   end
 end

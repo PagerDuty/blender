@@ -22,11 +22,9 @@ require 'blender/drivers/base'
 module Blender
   module Driver
     class Local < Base
-      def execute(job)
-        tasks = job.tasks
-        hosts = job.hosts
+      def execute(tasks, hosts)
         verify_local_host!(hosts)
-        Array(tasks).each do |task|
+        tasks.each do |task|
           converge_by "will be executing: #{task.command.inspect}" do
             cmd = raw_exec(task.command)
             if cmd.exitstatus != 0
@@ -37,8 +35,8 @@ module Blender
       end
 
       def verify_local_host!(hosts)
-        unless Array(hosts).all?{|h|h == 'localhost'}
-          raise Exceptions::UnsupportedFeature, 'ShellOut driver does not support any host other than localhost'
+        unless hosts.all?{|h|h == 'localhost'}
+          raise Exceptions::UnsupportedFeature, 'This driver does not support any host other than localhost'
         end
       end
     end

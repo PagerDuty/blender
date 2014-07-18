@@ -139,7 +139,7 @@ describe Blender::Scheduler do
       expect(scheduler.tasks).to be_empty
     end
     it 'should have no hosts' do
-      expect(scheduler.metadata[:members]).to eq(['localhost'])
+      expect(scheduler.metadata[:members]).to be_empty
     end
     describe '#run' do
       it 'should use serial_run when concurrency is not set' do

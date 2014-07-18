@@ -7,7 +7,7 @@ module Blender
   module Driver
     class SshMulti < Ssh
 
-      def execute(job)
+      def execute(tasks, hosts)
         tasks = job.tasks
         hosts = job.hosts
         Log.debug("SSH execution tasks [#{tasks.inspect}]")

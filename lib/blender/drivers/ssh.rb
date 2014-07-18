@@ -23,9 +23,7 @@ module Blender
   module Driver
     class Ssh < Base
 
-      def execute(job)
-        tasks = job.tasks
-        hosts = job.hosts
+      def execute(tasks, hosts)
         Log.debug("SSH execution tasks [#{tasks.inspect}]")
         Log.debug("SSH on hosts [#{hosts.inspect}]")
         Array(hosts).each do |host|

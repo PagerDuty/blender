@@ -78,13 +78,11 @@ module Blender
         [ command.query, command.payload, opts]
       end
 
-      def execute(job)
-        tasks = job.tasks
-        hosts = job.hosts
+      def execute(tasks, hosts)
         Log.debug("Serf execution tasks [#{tasks.inspect}]")
         Log.debug("Serf query on #{filter_by}s [#{hosts.inspect}]")
-        Array(hosts).each do |host|
-          Array(tasks).each do |task|
+        Array(tasks).each do |task|
+          hosts.each do |host|
             if evaluate_guards?(task)
               Log.debug("#{filter_by}:#{host}| Guards are valid")
             else

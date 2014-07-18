@@ -27,8 +27,8 @@ describe Blender do
     it 'should yield a scheduler object when block passed' do
       x = 1
       described_class.blend('test') do |sched|
-        sched.ruby_task 'foo' do |t|
-          t.execute {x = 100}
+        sched.ruby_task 'foo' do
+          x = 100
         end
       end
       expect(x).to eq(100)

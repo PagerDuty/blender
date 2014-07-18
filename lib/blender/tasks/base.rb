@@ -20,13 +20,20 @@ module Blender
   module Task
     class Base
       include Blender::Discovery
-      attr_reader :guards, :metadata, :name, :hosts, :driver
+
+      attr_reader :guards
+      attr_reader :metadata
+      attr_reader :name
+      attr_reader :hosts
+      attr_reader :driver
+      attr_reader :command
 
       def initialize(name, metadata = {})
         @name = name
         @metadata = default_metadata.merge(metadata)
         @guards = {not_if: [], only_if: []}
         @hosts = []
+        @command = name
         @driver = nil
         @before_hooks = []
         @after_hooks = []
@@ -60,10 +67,6 @@ module Blender
         @command = cmd
       end
 
-      def command
-        @command || name
-      end
-
       def members(hosts)
         @hosts = hosts
       end
@@ -85,6 +88,12 @@ module Blender
         }
       end
     end
-    class ShellOut < Base; end
+    class ShellOut < Base
+      def initialize(name, metadata ={})
+        super
+        @command = name
+        @members = ['localhost']
+      end
+    end
   end
 end

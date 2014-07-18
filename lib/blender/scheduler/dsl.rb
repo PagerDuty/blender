@@ -61,7 +61,7 @@ module Blender
       @default_driver.freeze
     end
 
-    def register_driver(type, name, config = nil)
+    def register_driver(type, name, config = {})
       @registered_drivers[name] = driver(type, config.merge(events: @events).dup)
     end
 
@@ -73,6 +73,7 @@ module Blender
       task_klass = Blender::Task.const_get(camelcase(type.to_s).to_sym)
       driver_klass = Blender::Driver.const_get(camelcase(type.to_s).to_sym)
       task = task_klass.new(name)
+      task.members(metadata[:members]) unless metadata[:members].empty?
       if @default_driver.is_a?(driver_klass)
         task.use_driver(@default_driver)
       else
@@ -83,6 +84,7 @@ module Blender
 
     def task(name, &block)
       task = build_task(name, :shell_out)
+      task.members(['localhost'])
       task.instance_eval(&block) if block_given?
       Log.debug("Appended task:#{task.inspect}")
       validate_driver!(task, :shell_out)

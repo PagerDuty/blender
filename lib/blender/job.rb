@@ -30,19 +30,15 @@ module Blender
     # @param default_driver [Blender::Driver::Base] a driver object
     # @patam hosts [Array] list of target hosts
     # @patam hosts [Array] list of tasks to be run against the hosts
-    def initialize(id, default_driver, hosts, tasks)
+    def initialize(id, driver, tasks, hosts)
       @id = id
-      @default_driver = default_driver
-      @hosts = Array(hosts)
       @tasks = Array(tasks)
-      task_drivers =  Array(tasks).collect(&:driver).compact.uniq
-      if task_drivers.size == 1
-        @driver = task_drivers.first
-      elsif task_drivers.empty?
-        @driver = default_driver
-      else
-        raise Blender::Exceptions::MultipleDrivers, 'Job contains tasks with heretogenous drivers'
-      end
+      @hosts = Array(hosts)
+      @driver = driver
+    end
+
+    def run
+      driver.execute(tasks, hosts)
     end
 
     def to_s
@@ -53,11 +49,11 @@ module Blender
     # name is used to summarize the job.
     # @return [String]
     def name
-      @name ||= compute_name(Array(hosts), Array(tasks))
+      @name ||= compute_name
     end
 
     private
-    def compute_name(hosts, tasks)
+    def compute_name
       if tasks.size == 1
         t_part = tasks.first.name
       else

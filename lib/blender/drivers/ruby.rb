@@ -21,11 +21,9 @@ module Blender
   module Driver
     class Ruby < Base
 
-      def execute(job)
-        tasks = job.tasks
-        hosts = job.hosts
-        Array(tasks).each do |task|
-          Array(hosts).each do |host|
+      def execute(tasks, hosts)
+        tasks.each do |task|
+          hosts.each do |host|
             converge_by "will be executing: #{task.command.inspect}" do
               cmd = raw_exec(task.command, host)
               if cmd.exitstatus != 0

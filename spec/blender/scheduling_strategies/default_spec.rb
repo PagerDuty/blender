@@ -4,9 +4,12 @@ describe Blender::SchedulingStrategy do
   let(:tasks){ Array.new(4){ |n| create_task("t#{n}") } }
   let(:driver){ Object.new }
   subject(:jobs) do
-    described_class.new.compute_jobs(driver, tasks, hosts)
+    described_class.new.compute_jobs(tasks)
   end
   describe Blender::SchedulingStrategy::Default do
+    before do
+      tasks.each{|t| t.members(hosts)}
+    end
     it 'number of jobs' do
       expect(jobs.size).to eq(hosts.size * tasks.size)
     end
@@ -26,6 +29,9 @@ describe Blender::SchedulingStrategy do
     end
   end
   describe Blender::SchedulingStrategy::PerHost do
+    before do
+      tasks.each{|t| t.members(hosts)}
+    end
     it 'number of jobs' do
       expect(jobs.size).to eq(hosts.size)
     end
@@ -45,6 +51,9 @@ describe Blender::SchedulingStrategy do
     end
   end
   describe Blender::SchedulingStrategy::PerTask do
+    before do
+      tasks.each{|t| t.members(hosts)}
+    end
     it 'number of jobs' do
       expect(jobs.size).to eq(tasks.size)
     end
