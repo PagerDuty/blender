@@ -85,6 +85,7 @@ module Blender
       begin
         Log.debug("Running job #{job.inspect}")
         job.run
+        @events.job_finished(job)
       rescue Exception => e
         @events.job_errored(job, e)
         if metadata[:ignore_failure]
@@ -93,7 +94,6 @@ module Blender
           raise e
         end
       end
-      @events.job_finished(job)
     end
 
     def default_metadata

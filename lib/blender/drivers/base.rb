@@ -42,6 +42,10 @@ module Blender
         @config[:stdout]
       end
 
+      def events
+        @events
+      end
+
       private
       def default_config
         {
