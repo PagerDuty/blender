@@ -82,7 +82,7 @@ module Blender
       task
     end
 
-    def task(name, &block)
+    def shell_task(name, &block)
       task = build_task(name, :shell_out)
       task.members(['localhost'])
       task.instance_eval(&block) if block_given?
@@ -138,7 +138,7 @@ module Blender
       @metadata[:members] = members
     end
 
-
+    alias_method :task, :shell_task
     private
     def validate_driver!(t, type)
       klass = Blender::Driver.const_get(camelcase(type.to_s).to_sym)
