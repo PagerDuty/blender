@@ -26,13 +26,11 @@ module Blender
       end
       def job_computation_finished(strategy, jobs)
       end
-      def task_started(task)
+      def command_started(command)
       end
-      def task_finished(task)
+      def command_finished(command)
       end
-      def task_skipped(task)
-      end
-      def task_executed(task)
+      def command_errored(command)
       end
       def job_started(job)
       end

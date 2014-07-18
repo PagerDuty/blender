@@ -50,6 +50,10 @@ module Blender
         ui.puts_red("  #{job.to_s} errored")
       end
 
+      def command_errored(command)
+        ui.puts_red("   Command#{command.to_s} errored")
+      end
+
       def job_computation_started(strategy)
         @compute_start_time = Time.now
         @strategy = strategy.class.name.split('::').last
