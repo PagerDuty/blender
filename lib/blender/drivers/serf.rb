@@ -47,11 +47,15 @@ module Blender
       end
 
       def run_command(command, host)
-        responses = serf_query(command, host)
-        if command.process
-          command.process.call(responses)
+        begin
+          responses = serf_query(command, host)
+          if command.process
+            command.process.call(responses)
+          end
+          ExecOutput.new(exit_status(responses), responses.inspect, '')
+        rescue Exception => e
+          ExecOutput.new( -1, '', e.message)
         end
-        ExecOutput.new(exit_status(responses), responses.inspect, '')
       end
 
       def exit_status(responses)
@@ -82,7 +86,12 @@ module Blender
         Log.debug("Serf query on #{filter_by}s [#{hosts.inspect}]")
         tasks.each do |task|
           hosts.each do |host|
-            run_command(task.command, host)
+            events.command_started(task.command)
+            cmd = run_command(task.command, host)
+            events.command_finished(task.command, cmd)
+            if cmd.exitstatus != 0 and !task.metadata[:ignore_failure]
+              raise Exceptions::ExecutionFailed, cmd.stderr
+            end
           end
         end
       end

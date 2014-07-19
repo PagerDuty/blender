@@ -24,7 +24,9 @@ module Blender
       def execute(tasks, hosts)
         tasks.each do |task|
           hosts.each do |host|
+            events.command_started(task.command)
             cmd = run_command(task.command, host)
+            events.command_finished(task.command, cmd)
             if cmd.exitstatus != 0 and !task.metadata[:ignore_failure]
               raise Exceptions::ExecutionFailed, cmd.stderr
             end

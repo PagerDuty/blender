@@ -28,7 +28,7 @@ module Blender
       end
       def command_started(command)
       end
-      def command_finished(command)
+      def command_finished(command, status)
       end
       def command_errored(command)
       end

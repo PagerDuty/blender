@@ -1,9 +1,10 @@
 require 'spec_helper'
+require 'blender/handlers/base'
 
 describe Blender::Driver::Serf do
   let(:driver) do
     described_class.new(
-      events: Object.new,
+      events: Blender::Handlers::Base.new,
       host: 'foo',
       port: 123,
       authkey: 'xyz'
@@ -11,7 +12,7 @@ describe Blender::Driver::Serf do
   end
   let(:tag_driver) do
     described_class.new(
-      events: Object.new,
+      events: Blender::Handlers::Base.new,
       host: 'foo',
       port: 123,
       authkey: 'xyz',
