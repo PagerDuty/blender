@@ -27,7 +27,6 @@ require 'blender/drivers/ssh'
 require 'blender/drivers/ssh_multi'
 require 'blender/drivers/shellout'
 require 'blender/drivers/serf'
-require 'blender/drivers/serf_multi'
 require 'blender/drivers/serf_async'
 require 'blender/drivers/ruby'
 require 'blender/discovery'
@@ -118,8 +117,8 @@ module Blender
     def strategy(strategy)
       klass_name = camelcase(strategy.to_s).to_sym
       begin
-        @strategy = Blender::SchedulingStrategy.const_get(klass_name).new
-        @strategy.freeze
+        @scheduling_strategy = Blender::SchedulingStrategy.const_get(klass_name).new
+        @scheduling_strategy.freeze
       rescue NameError => e
         raise Exceptions::UnknownSchedulingStrategy, e.message
       end

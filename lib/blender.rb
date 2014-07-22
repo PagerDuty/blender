@@ -22,24 +22,21 @@ require 'blender/drivers/shellout'
 
 # Top level module that holds all blender related libraries under this namespace
 module Blender
-  # Trigger a blender job. If a block is given, then an object of
-  # Blender::Scheduler is yielded, othewise the argument is treated as a
-  # command and executed locally
+  # Trigger a blender run. If a block is given, then an object of
+  # Blender::Scheduler is yielded, otherwise the argument is treated as a
+  # command and executed with local shellout driver
   #
-  # @param name [String] Name of the job
+  # @param name [String] Name of the run
   #
   # @return [void]
   def self.blend(name)
     if block_given?
-      Log.debug('Advance blending in progress...')
       scheduler = Scheduler.new(name)
       yield scheduler
     else
-      Log.debug('Newbie blending in progress...')
       scheduler = Scheduler.new(name)
       scheduler.task(name)
     end
     scheduler.run
-    nil
   end
 end

@@ -30,7 +30,7 @@ module Blender
 
     include SchedulerDSL
 
-    attr_reader :metadata, :name, :registered_discoveries
+    attr_reader :metadata, :name, :registered_discoveries, :scheduling_strategy
     attr_reader :events, :tasks, :default_driver, :registered_drivers
 
     def initialize(name, tasks = [], metadata = {})
@@ -38,27 +38,27 @@ module Blender
       @tasks = tasks
       @metadata = default_metadata.merge(metadata)
       @events = Blender::EventDispatcher.new
-      @events.register(Blender::Handlers::Doc.new)
+      events.register(Blender::Handlers::Doc.new)
       @registered_discoveries = {}
       @registered_drivers = {}
       @default_driver = nil
-      @strategy = nil
+      @scheduling_strategy = nil
     end
 
     def run
-      @strategy ||= SchedulingStrategy::Default.new
-      @events.run_started(self)
-      @default_driver ||= driver(:shell_out, events: @events)
-      @events.job_computation_started(@strategy)
-      jobs = @strategy.compute_jobs(@tasks)
-      @events.job_computation_finished(self, jobs)
+      @scheduling_strategy ||= SchedulingStrategy::Default.new
+      events.run_started(self)
+      @default_driver ||= driver(:shell_out, events: events)
+      events.job_computation_started()
+      jobs = scheduling_strategy.compute_jobs(@tasks)
+      events.job_computation_finished(self, jobs)
       if metadata[:concurrency] > 1
         concurrent_run(jobs)
       else
         serial_run(jobs)
       end
-      @events.run_finished(self)
-      nil
+      events.run_finished(self)
+      jobs
     end
 
     def serial_run(jobs)
@@ -81,13 +81,13 @@ module Blender
     end
 
     def run_job(job)
-      @events.job_started(job)
+      events.job_started(job)
       begin
         Log.debug("Running job #{job.inspect}")
         job.run
-        @events.job_finished(job)
+        events.job_finished(job)
       rescue Exception => e
-        @events.job_errored(job, e)
+        events.job_errored(job, e)
         if metadata[:ignore_failure]
           Log.warn("Exception: #{e.inspect} was suppressed, ignoring failure")
         else
