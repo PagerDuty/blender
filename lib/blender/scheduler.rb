@@ -49,7 +49,7 @@ module Blender
       @scheduling_strategy ||= SchedulingStrategy::Default.new
       events.run_started(self)
       @default_driver ||= driver(:shell_out, events: events)
-      events.job_computation_started()
+      events.job_computation_started(scheduling_strategy)
       jobs = scheduling_strategy.compute_jobs(@tasks)
       events.job_computation_finished(self, jobs)
       if metadata[:concurrency] > 1
