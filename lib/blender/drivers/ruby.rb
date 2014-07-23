@@ -43,7 +43,7 @@ module Blender
           STDOUT.reopen(stdout)
           STDERR.reopen(stderr)
           command.call(host)
-        rescue Exception => e
+        rescue StandardError => e
           err = e.message
           exit_status = -1
         ensure

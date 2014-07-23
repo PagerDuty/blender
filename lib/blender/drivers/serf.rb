@@ -53,7 +53,7 @@ module Blender
             command.process.call(responses)
           end
           ExecOutput.new(exit_status(responses), responses.inspect, '')
-        rescue Exception => e
+        rescue StandardError => e
           ExecOutput.new( -1, '', e.message)
         end
       end

@@ -86,7 +86,7 @@ module Blender
         Log.debug("Running job #{job.inspect}")
         job.run
         events.job_finished(job)
-      rescue Exception => e
+      rescue StandardError => e
         events.job_errored(job, e)
         if metadata[:ignore_failure]
           Log.warn("Exception: #{e.inspect} was suppressed, ignoring failure")
