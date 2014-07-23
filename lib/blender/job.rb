@@ -23,7 +23,7 @@ module Blender
   # Tasks within a single job must has exactly same driver.
   class Job
 
-    attr_reader :tasks, :hosts, :driver
+    attr_reader :tasks, :hosts, :driver, :id
 
     # creates a new job
     # @param id [Fixnum] a numeric identifier
@@ -42,7 +42,7 @@ module Blender
     end
 
     def to_s
-      "Job[#{name}]"
+      "Job #{id} [#{name}]"
     end
 
     # computes, momoize and return the name of the job
