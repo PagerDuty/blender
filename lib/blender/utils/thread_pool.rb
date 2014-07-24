@@ -41,6 +41,9 @@ module Blender
         until @queue.empty?
           sleep 0.2
         end
+        until @queue.num_waiting == @size
+          sleep 0.2
+        end
         threads.each do |thread|
           thread.join(0.02)
         end
