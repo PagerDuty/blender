@@ -62,7 +62,7 @@ module Blender
         case filter_by
         when :host
           responses.size == 1 ? 0 : -1
-        when :tag
+        when :tag, :none
           0
         else
           raise ArgumentError, "Unknown filter_by option: #{@config[:filter_by]}"
@@ -76,6 +76,8 @@ module Blender
           opts.merge!(FilterNodes: [host])
         when :tag
           opts.merge!(FilterTags: {@config[:filter_tag] => host})
+        when :none
+          raise 'filter by :none only supported with localhost' unless host == 'localhost'
         else
           raise ArgumentError, "Unknown filter_by option: #{@config[:filter_by]}"
         end
