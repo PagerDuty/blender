@@ -16,6 +16,7 @@
 # limitations under the License.
 
 require 'serfx'
+require 'blender/log'
 
 module Blender
   module Discovery
@@ -28,6 +29,9 @@ module Blender
         status = opts[:status] || 'alive'
         name = opts[:name]
         hosts = []
+        Blender::Log.debug("Serf memeber list call with arguments: Tags=#{tags}")
+        Blender::Log.debug("Serf memeber list call with arguments: status=#{status}")
+        Blender::Log.debug("Serf memeber list call with arguments: Name=#{name}")
         Serfx.connect(@config) do |conn|
           conn.members_filtered(tags, status, name).body['Members'].map do |m|
             hosts << m['Name']

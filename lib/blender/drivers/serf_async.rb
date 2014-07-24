@@ -14,40 +14,67 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'serfx'
+
 require 'blender/exceptions'
 require 'blender/log'
-require 'blender/drivers/base'
 require 'blender/drivers/serf'
 require 'json'
-require 'pry'
+require 'blender/tasks/serf'
 
 module Blender
   module Driver
     class SerfAsync < Serf
-      def raw_exec(command)
-        command.payload = 'start'
-        start_responses = serf_query(command)
-        loop do
-          sleep(@config[:check_interval])
-          break if command_finished?(command, start_responses)
+
+      def dup_command(cmd, payload)
+        Blender::Task::Serf::SerfQuery.new(
+          cmd.query,
+          payload,
+          cmd.timeout,
+          cmd.noack
+        )
+      end
+
+      def start!(cmd, host)
+        resps = serf_query(dup_command(cmd, 'start'), host)
+        status = extract_status!(resps.first)
+        unless status == 'success'
+          raise Blender::Exceptions::SerfAsyncJobError, "Failed to start async serf job. Status = #{status}"
         end
-        ExecOutput.new(exit_status(responses), responses.inspect, '')
       end
 
-      def command_finished?(command, start_responses)
-        cmd = command.dup.tap{|c|c.payload = 'check'}
-        check_responses = serf_query(cmd)
+      def finished?(cmd, host)
+        Blender::Log.debug("Checking for status")
+        resps = serf_query(dup_command(cmd, 'check'), host)
+        Blender::Log.debug("Responses: #{resps.inspect}")
+        Blender::Log.debug("Status:#{extract_status!(resps.first)}")
+        extract_status!(resps.first) == 'finished'
       end
 
-      def reap_command?(command, start_responses)
-        cmd = command.dup.tap{|c|c.payload = 'reap'}
-        check_responses = serf_query(comd)
+      def reap!(cmd, host)
+        resps = serf_query(dup_command(cmd, 'reap'), host)
+        extract_status!(resps.first) == 'success'
       end
 
-      private
-      def default_config
-        super.merge(check_interval: 60)
+      def run_command(command, host)
+        begin
+          start!(command, host)
+          until finished?(command, host)
+            sleep 10
+          end
+          reap!(command, host)
+          ExecOutput.new(0, '', '')
+        rescue StandardError => e
+          ExecOutput.new( -1, '', e.message + e.backtrace.join("\n"))
+        end
+      end
+
+      def extract_status!(res)
+        payload = JSON.parse(res['Payload'])
+        unless payload['code'].zero?
+          raise Blender::Exceptions::SerfAsyncJobError, "non zero query response code: #{res}"
+        end
+        Blender::Log.debug("Payload: #{payload['result'].inspect}")
+        payload['result']['status']
       end
     end
   end
