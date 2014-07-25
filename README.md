@@ -7,25 +7,33 @@ can be executed either via ssh or as serf jobs. Blender has drivers for local
 shell and ruby based jobs as well.
 
 ## Concepts
+
 ### Task & Driver
+
 #### Tasks
+
   - shell_task: execute commands on current host
   - ruby_task: execute ruby blocks against current host
   - ssh_task: execute commands against remote hosts using ssh
   - ssh_task: execut serf queris against remote hosts
 
+#### Drivers
+
+
 ### Host discovery
+
   - serf: discover hosts using serf membership
   - chef: discover hosts using Chef search
+
 ### Job
+
 ### Strategies
+
   - default strategy
   - per host strategy
   - per task strategy
 
-## Installation
-
-  $ gem install blender
+## Scheduling blender scripts with rufus scheduler
 
 
 Blender can be used from arbitrary ruby scripts as a library or as a standalone
