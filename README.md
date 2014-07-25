@@ -54,9 +54,10 @@ ssh_task "check memory" do
 end
 ```
 If a task does not declare its own memebers (i.e. target hosts), global members
-(host1, host2 and host3) will be assumed.
+(host1, host2 and host3) will be assumed. A blender script can have multiple
+tasks of differenet types.
 
-A blender script can have multiple types of tasks as well (shell, ssh, raw ruby etc).
+## Concepts
 
 Blender is composed of three major sub-components, these are:
 
@@ -67,29 +68,69 @@ Blender is composed of three major sub-components, these are:
   * Scheduling stratgy: or the order of execution. This determines the exact
 order of task executions aginst a group of hosts.
 
-## Task & Driver
+### Task & Driver
 
-In Blender, tasks and drivers compliment each other. Tasks act as front end, to declare
+Tasks and drivers compliment each other. Tasks act as front end, where we declare
 what needs to be done, while driver are used to interprete how those tasks can be done (backends).
 For example `ssh_task` can be used to declare tasks, while `ssh` and `ssh_multi` driver
 can execute `ssh_task`s. Currently blender ships with following tasks and drivers:
 
-### Tasks
+  - shell_task: execute commands on current host. shell tasks can only have 'localhost'
+  as the members. presence of any other hosts in members list will raise exception. shell_tasks
+  are executed using shell_out driver (used Mixlib::ShellOut internally).
+  Example:
+  ```ruby
+  shell_task 'foo' do
+    execute 'sudo apt-get update -y'
+  end
+  ```
 
-  - shell_task: execute commands on current host
-  - ruby_task: execute ruby blocks against current host
-  - ssh_task: execute commands against remote hosts using ssh
-  - serf_task: execut serf queris against remote hosts
+  - ruby_task: execute ruby blocks against current host. host names from members list is passed
+  to the block. ruby_tasks are executed using Blender::Ruby driver.
+  Example:
+  ```ruby
+  ruby_task 'baz' do
+    execute do |host|
+      puts  "Host name is: #{host}"
+    end
+  end
+  ```
 
-### Drivers
+  - ssh_task: execute commands against remote hosts using ssh. Blender ships with two ssh drivers,
+  one based vaniall ruby net-ssh binding, another based on net-ssh-multi (which supports parallel
+  execution)
+  Example:
+  ```ruby
+  ssh_task 'bar' do
+    execute 'sudo apt-get update -y'
+    members ['host1', 'host2']
+  end
+  ```
 
-  - shell_out
-  - ruby
-  - ssh
-  - ssh multi
-  - serf
-  - async_serf
+  - serf_task: execute serf queris against remote hosts. Blnder ships with two serf drivers, one for
+  fire & forget style serf queries which is used for fast/quick tasks, another one for long running
+  tasks which involves fire and poll periodically till completion, called as async_serf driver, which is
+  based on the Serfx::AsyncJob module.
 
+  Exmample of a simple serf task:
+  ```ruby
+  serf_task 'test' do
+    query 'metadata'
+    payload 'ipaddress'
+    timeout 4
+    members ['host1', 'host2']
+  end
+  ```
+
+Drivers are can be shared across tasks. When blender bootsup it assigns a default `shell_out` driver.
+Each tasks, when created checks for the default driver, and used it if its compatible, else creates a new
+one. Drivers can be created explicitly and assigned to tasks directly as well. Following are the relevent driver
+related API:
+  - Define the global/default driver explicitly
+  ```ruby
+  global_driver
+  ```
+``
 
 ## Host discovery
 
@@ -98,17 +139,17 @@ can execute `ssh_task`s. Currently blender ships with following tasks and driver
 
 ### Job
 
-### Strategies
+### Scheduling Strategies
 
   - default strategy
   - per host strategy
   - per task strategy
 
-## Scheduling blender scripts with rufus scheduler
+### Invoking blender periodially with Rufus schedler
 
+### Ignore failure, parallel job execution
 
-## Ignore failure, parallel job execution
-
+### Event handlers
 
 ## Contributing
 
