@@ -85,7 +85,7 @@ module Blender
     def run_job(job)
       events.job_started(job)
       begin
-        Log.debug("Running job #{job.inspect}")
+        Log.debug("Running job #{job.name}")
         job.run
         events.job_finished(job)
       rescue StandardError => e

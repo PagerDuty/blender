@@ -86,7 +86,7 @@ module Blender
       task = build_task(name, :shell_out)
       task.members(['localhost'])
       task.instance_eval(&block) if block_given?
-      Log.debug("Appended task:#{task.inspect}")
+      Log.debug("Appended task:#{task.name}")
       validate_driver!(task, :shell_out)
       @tasks << task
     end
@@ -94,7 +94,7 @@ module Blender
     def ruby_task(name, &block)
       task = build_task(name, :ruby)
       task.instance_eval(&block) if block_given?
-      Log.debug("Appended task:#{task.inspect}")
+      Log.debug("Appended task:#{task.name}")
       validate_driver!(task, :ruby)
       @tasks << task
     end
@@ -102,7 +102,7 @@ module Blender
     def ssh_task(name, &block)
       task = build_task(name, :ssh)
       task.instance_eval(&block) if block_given?
-      Log.debug("Appended task:#{task.inspect}")
+      Log.debug("Appended task:#{task.name}")
       validate_driver!(task, :ssh)
       @tasks << task
     end
@@ -110,7 +110,7 @@ module Blender
     def serf_task(name, &block)
       task = build_task(name, :serf)
       task.instance_eval(&block) if block_given?
-      Log.debug("Appended task:#{task.inspect}")
+      Log.debug("Appended task:#{task.name}")
       validate_driver!(task, :serf)
       @tasks << task
     end
@@ -133,9 +133,8 @@ module Blender
       @metadata[:ignore_failure] = value
     end
 
-    def members(members)
-      Log.debug("Setting members:#{members.inspect}")
-      @metadata[:members] = members
+    def members(hosts)
+      @metadata[:members] = hosts
     end
 
     alias_method :task, :shell_task
