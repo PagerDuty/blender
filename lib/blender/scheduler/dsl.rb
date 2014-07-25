@@ -20,6 +20,7 @@ require 'blender/scheduling_strategies/default'
 require 'blender/tasks/base'
 require 'blender/tasks/ruby'
 require 'blender/tasks/ssh'
+require 'blender/tasks/shell_out'
 require 'blender/tasks/serf'
 require 'highline'
 require 'blender/utils/refinements'
@@ -71,7 +72,7 @@ module Blender
     def build_task(name, type)
       task_klass = Blender::Task.const_get(camelcase(type.to_s).to_sym)
       driver_klass = Blender::Driver.const_get(camelcase(type.to_s).to_sym)
-      task = task_klass.new(name)
+      task = task_klass.new(name, discovery_config: discovery_config)
       task.members(metadata[:members]) unless metadata[:members].empty?
       if @default_driver.is_a?(driver_klass)
         task.use_driver(@default_driver)

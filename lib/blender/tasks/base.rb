@@ -31,36 +31,21 @@ module Blender
       def initialize(name, metadata = {})
         @name = name
         @metadata = default_metadata.merge(metadata)
-        @guards = {not_if: [], only_if: []}
         @hosts = []
         @command = name
         @driver = nil
-        @before_hooks = []
-        @after_hooks = []
       end
 
       def use_driver(driver)
         @driver = driver
       end
 
-      def before(&block)
-        @before_hooks << block
-      end
-
-      def after(&block)
-        @after_hooks << block
-      end
-
       def ignore_failure(value)
         @metadata[:ignore_failure] = value
       end
 
-      def not_if(cmd)
-        @guards[:not_if] << cmd
-      end
-
-      def only_if(cmd)
-        @guards[:only_if] << cmd
+      def discovery_config
+        @metadata[:discovery_config]
       end
 
       def execute(cmd)
@@ -84,15 +69,9 @@ module Blender
         retries: 0,
         retry_delay: 0,
         async: 0,
-        handlers: []
+        handlers: [],
+        discovery_config: Hash.new{|h,k| h[k] = Hash.new}
         }
-      end
-    end
-    class ShellOut < Base
-      def initialize(name, metadata ={})
-        super
-        @command = name
-        @members = ['localhost']
       end
     end
   end

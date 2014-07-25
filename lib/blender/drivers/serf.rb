@@ -46,22 +46,22 @@ module Blender
         responses
       end
 
-      def run_command(command, host)
+      def run_command(command, nodes)
         begin
-          responses = serf_query(command, host)
+          responses = serf_query(command, nodes)
           if command.process
             command.process.call(responses)
           end
-          ExecOutput.new(exit_status(responses), responses.inspect, '')
+          ExecOutput.new(exit_status(responses, nodes), responses.inspect, '')
         rescue StandardError => e
           ExecOutput.new( -1, '', e.message)
         end
       end
 
-      def exit_status(responses)
+      def exit_status(responses, nodes)
         case filter_by
         when :host
-          responses.size == 1 ? 0 : -1
+          responses.size == nodes.size ? 0 : -1
         when :tag, :none
           0
         else
@@ -69,15 +69,16 @@ module Blender
         end
       end
 
-      def query_opts(command, host)
+      def query_opts(command, nodes)
         opts = { Timeout: (command.timeout || 15)*1e9.to_i}
         case filter_by
         when :host
-          opts.merge!(FilterNodes: [host])
+          opts.merge!(FilterNodes: nodes)
         when :tag
-          opts.merge!(FilterTags: {@config[:filter_tag] => host})
+          raise 'filter by :tag only supports single tag' unless nodes.size == 1
+          opts.merge!(FilterTags: {@config[:filter_tag] => nodes.first})
         when :none
-          raise 'filter by :none only supported with localhost' unless host == 'localhost'
+          raise 'filter by :none only supported with localhost' unless nodes == ['localhost']
         else
           raise ArgumentError, "Unknown filter_by option: #{@config[:filter_by]}"
         end
@@ -87,9 +88,9 @@ module Blender
       def execute(tasks, hosts)
         Log.debug("Serf query on #{filter_by}s [#{hosts.inspect}]")
         tasks.each do |task|
-          hosts.each do |host|
+          hosts.each_slice(concurrency) do |nodes|
             events.command_started(task.command)
-            cmd = run_command(task.command, host)
+            cmd = run_command(task.command, nodes)
             events.command_finished(task.command, cmd)
             if cmd.exitstatus != 0 and !task.metadata[:ignore_failure]
               raise Exceptions::ExecutionFailed, cmd.stderr
@@ -98,10 +99,14 @@ module Blender
         end
       end
 
+      def concurrency
+        config[:concurrency]
+      end
+
       private
 
       def default_config
-        super.merge(filter_by: :host)
+        super.merge(filter_by: :host, concurrency: 1)
       end
     end
   end

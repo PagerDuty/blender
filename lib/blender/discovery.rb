@@ -22,17 +22,39 @@ require 'blender/utils/refinements'
 module Blender
   module Discovery
     include Blender::Utils::Refinements
-    def build_discovery(type, opts = {})
-      disco_klass = Blender::Discovery.const_get(camelcase(type.to_s).to_sym)
-      disco_klass.new(opts)
+
+    def init(type, opts = {})
+      discovery_config[type].merge!(opts).freeze
     end
 
-    def serf_discover(options = {})
+    def init_serf(opts = {})
+      init(:serf, opts)
+    end
+
+    def init_chef(opts = {})
+      init(:chef, opts)
+    end
+
+    def build_discovery(type, opts = {})
+      disco_klass = Blender::Discovery.const_get(camelcase(type.to_s).to_sym)
+      disco_opts = discovery_config[type].merge(opts)
+      disco_klass.new(disco_opts)
+    end
+
+    def serf_nodes(options = {})
       search_opts = options.delete(:search) || {}
       build_discovery(:serf, options).search(search_opts)
     end
 
-    def chef_discover(options = {})
+    def serf_search(options = {})
+      serf_nodes(search: options)
+    end
+
+    def chef_search(options = {})
+      chef_nodes(search: options)
+    end
+
+    def chef_nodes(options = {})
       search_opts = options.delete(:search) || {}
       build_discovery(:chef, options).search(search_opts)
     end
