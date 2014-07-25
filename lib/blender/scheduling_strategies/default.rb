@@ -31,7 +31,7 @@ module Blender
         jobs = pairs.map do |task, host|
           Log.debug("Creating job (#{host}|#{task.name})")
           job_id += 1
-          Job.new(job_id, task.driver, task, host)
+          Job.new(job_id, task.driver, [task], [host])
         end
         Log.debug("Total jobs : #{jobs.size}")
         jobs
@@ -45,7 +45,7 @@ module Blender
           hosts = task.hosts
           Log.debug("Creating job (#{hosts.size}|#{task.name})")
           job_id += 1
-          Job.new(job_id, task.driver, task, hosts)
+          Job.new(job_id, task.driver, [task] , hosts)
         end
         Log.debug("Total jobs : #{jobs.size}")
         jobs
@@ -60,7 +60,7 @@ module Blender
         end
         job_id = 1
         jobs = hosts_list.first.map do |host|
-          Job.new(job_id, Blender::Driver::Compound.new, tasks, host)
+          Job.new(job_id, Blender::Driver::Compound.new, tasks, [host])
         end
         Log.debug("Total jobs : #{jobs.size}")
         jobs

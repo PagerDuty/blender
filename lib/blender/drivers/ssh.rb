@@ -24,7 +24,7 @@ module Blender
     class Ssh < Base
 
       def execute(tasks, hosts)
-        Log.debug("SSH execution tasks [#{tasks.name}]")
+        Log.debug("SSH execution tasks [#{Array(tasks).size}]")
         Log.debug("SSH on hosts [#{hosts.join(",")}]")
         Array(hosts).each do |host|
           session = ssh_session(host)
