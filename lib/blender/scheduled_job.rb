@@ -29,7 +29,7 @@ module Blender
     # @param name [String] name of the job
     def initialize(name)
       @name = name
-      @file = nil
+      @file = name
     end
 
     # set the path of the file holding blender job
@@ -57,8 +57,8 @@ module Blender
 
     # invoke a blender run based on the +blender_file+
     def run
-      des = File.read(@file)
-      Blender.blend(@file) do |sch|
+      des = File.read(file)
+      Blender.blend(file) do |sch|
         sch.instance_eval(des, __FILE__, __LINE__)
       end
     end
