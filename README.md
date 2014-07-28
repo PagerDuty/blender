@@ -55,7 +55,7 @@ ssh_task "check memory" do
 end
 ```
 
-If a task does not declare its own memebers (i.e. target hosts), global members
+If a task does not declare its own members (i.e. target hosts), global members
 (host1, host2 and host3) will be assumed. A blender script can have multiple
 tasks of differenet types.
 
@@ -63,7 +63,7 @@ tasks of differenet types.
 
 Blender is composed of three major sub-components, these are:
 
-  * **Tasks and Drivers** - Taska encapsulated commands(or equivalent abstraction). A blender
+  * **Tasks and Drivers** - Tasks encapsulate commands (or equivalent abstraction). A blender
   script can have a series of tasks. Drivers execute the commands (defined
   inside tasks), against local or remote hosts (e.g. ssh driver). Individual task
   types can only be run with a compatible set of drivers. Some of the task types has more
@@ -81,7 +81,7 @@ Blender is composed of three major sub-components, these are:
 ### Task & Driver
 
 Tasks and drivers compliment each other. Tasks act as front end, where we declare
-what needs to be done, while drivers used to interprete how those tasks can be done (backends).
+what needs to be done, while drivers are used to interpret how those tasks can be done (backends).
 For example `ssh_task` can be used to declare tasks, while `ssh` and `ssh_multi` driver
 can execute `ssh_task`s. Currently blender ships with following tasks and drivers:
 
@@ -107,7 +107,7 @@ can execute `ssh_task`s. Currently blender ships with following tasks and driver
   ```
 
   - **ssh_task**: execute commands against remote hosts using ssh. Blender ships with two ssh drivers,
-  one based vaniall ruby net-ssh binding, another based on net-ssh-multi (which supports parallel
+  one based on a vanilla ruby net-ssh binding, another based on net-ssh-multi (which supports parallel
   execution)
   Example:
   ```ruby
@@ -117,9 +117,9 @@ can execute `ssh_task`s. Currently blender ships with following tasks and driver
   end
   ```
 
-  - **serf_task**: execute serf queris against remote hosts. Blnder ships with two serf drivers, one for
+  - **serf_task**: execute serf queries against remote hosts. Blender ships with two serf drivers, one for
   fire & forget style serf queries which is used for fast/quick tasks, another one for long running
-  tasks which involves fire and poll periodically till completion,  called as async_serf driver, which is
+  tasks which involves fire and poll periodically till completion, called as async_serf driver, which is
   based on the Serfx::AsyncJob module.
 
   Exmample of a simple serf task:
@@ -132,9 +132,9 @@ can execute `ssh_task`s. Currently blender ships with following tasks and driver
   end
   ```
 
-Whenever a new task is declared blender look for a compatible driver. Unless a driver is explicitly specified,
+Whenever a new task is declared blender looks for a compatible driver. Unless a driver is explicitly specified,
 Blender will try its best to reuse the global driver if compatible, else it will create one. By default the
-global_driver is a shell_out driver. You can define different global_driver using the dsl, and it will affect
+```global_driver``` is a ```shell_out``` driver. You can define different global_driver using the dsl, and it will affect
 any tasks defined afterwards. This allows us to customize the driver behavior (like concurrency, stdout sharing
 etc).
 Following is an example of specifyng the global_driver as ssh, with stdout streaming.
@@ -147,7 +147,7 @@ Following is an example of specifyng the global_driver as ssh, with stdout strea
     members Array.new(100){|n| "host-#{n}"}
   end
   ```
-Other drivers can also be regiseterd and reused across tasks, using the dsl.
+Other drivers can also be registered and reused across tasks, using the dsl.
 
    ```ruby
   # register a serf driver (type), with name `awesome`
@@ -161,7 +161,7 @@ Other drivers can also be regiseterd and reused across tasks, using the dsl.
 ### Host discovery
 
 Blender allows discovering hosts dynamically. It ships with chef and serf based host
-discoveries. Discovery dsl can be consumed globally to define a host list, or per task.
+discoveries. Discovery DSL can be consumed globally to define a host list, or per task.
 Following are some examples:
 
   - **serf**: discover hosts using serf membership
@@ -185,9 +185,9 @@ Following are some examples:
     members chef_nodes(search: 'roles:web')
   end
   ```
-Discovery specific dsl methods can take additional options to specify configuration options.
+Discovery specific DSL methods can take additional options to specify configuration options.
 Like `node_name` and `client_key` for chef. Defaults for those can also be specified using
-`init` dsl method.
+`init` DSL method.
 
 ```ruby
 init(:chef, client_key: '/path/to/client.pem', node_name: 'foobar')
