@@ -165,6 +165,7 @@ discoveries. Discovery dsl can be consumed globally to define a host list, or pe
 Following are some examples:
 
   - **serf**: discover hosts using serf membership
+
   ```ruby
   ruby_task 'print host name' do
     execute do |host|
@@ -173,7 +174,10 @@ Following are some examples:
     members serf_nodes(name: 'web-.*')
   end
   ```
+
   - **chef**: discover hosts using Chef search
+
+  ```ruby
   ruby_task 'print host name' do
     execute do |host|
       Blender::Log.info("Host: #{host}")
@@ -188,6 +192,7 @@ Like `node_name` and `client_key` for chef. Defaults for those can also be speci
 ```ruby
 init(:chef, client_key: '/path/to/client.pem', node_name: 'foobar')
 ```
+
 will instruct all chef_nodes call to use these default configs. Same applies for serf based
 discovery.
 
@@ -200,6 +205,7 @@ jobs. Tasks and job are pretty similar in their structures (both holds command a
 except a jobs can hold multiple tasks within them. We'll come to this later, but first, lets
 see how the default strategy work.
   - **default strategy**: the default strategy takes the list of declared tasks (and associated members in each tasks) breaks them up into per node jobs. For example:
+
   ```ruby
   members ['host1', 'host2', 'host3']
 
@@ -209,9 +215,11 @@ see how the default strategy work.
     end
   end
   ```
+
 will result in 3 jobs. each with ruby_task[test] on host1, ruby_task[test] on host2  and
 ruby_task[test] on host3. And then these three tasks will be executed serially.
 Following will create 6 jobs.
+
   ```ruby
   members ['host1', 'host2', 'host3']
 
@@ -227,6 +235,7 @@ Following will create 6 jobs.
     end
   end
   ```
+
 While the next one will create 5 jobs (second task will give only one job).
 
   ```ruby
