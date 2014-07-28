@@ -63,16 +63,16 @@ tasks of differenet types.
 
 Blender is composed of three major sub-components, these are:
 
-  * **Discoveries** - Responsible for host discovery. Blender tasks have members
-  associated with them. This can be a hardcoded list of hosts, but for dynamic
-  infrastructure, you can search and dicover nodes that can be assigned globally,
-  or against individual tasks.
-
   * **Tasks and Drivers** - Taska encapsulated commands(or equivalent abstraction). A blender
   script can have a series of tasks. Drivers execute the commands (defined
   inside tasks), against local or remote hosts (e.g. ssh driver). Individual task
   types can only be run with a compatible set of drivers. Some of the task types has more
   than one drivers.
+
+  * **Discoveries** - Responsible for host discovery. Blender tasks have members
+  associated with them. This can be a hardcoded list of hosts, but for dynamic
+  infrastructure, you can search and dicover nodes that can be assigned globally,
+  or against individual tasks.
 
   * **Scheduling stratgy** - Logic that determines the order of command execution. This include
   the order of hosts as well in a distributed workflow. Scheduling strategy takes the workflow
@@ -158,7 +158,7 @@ Other drivers can also be regiseterd and reused across tasks, using the dsl.
   end
   ```
 
-## Host discovery
+### Host discovery
 
 Blender allows discovering hosts dynamically. It ships with chef and serf based host
 discoveries. Discovery dsl can be consumed globally to define a host list, or per task.
@@ -314,7 +314,7 @@ Its fairly easy to write custom scheduling strategies and they can be used to re
 rearrange hosts/tasks as you wish. For example, null strategy that return 0 jobs irrespective
 of what tasks or members you pass, or a custome strategy that takes the hosts lists of every tasks and considers only one of them dynamicaaly based on some metrics for jobs.. etc.
 
-### Invoking blender periodially with Rufus schedler
+## Invoking blender periodially with Rufus schedler
 
 Blender is designed to be used as a standalone script that can be invoked on-demand or
 consumed as a library, i.e. workflows are written in plain ruby objects and invoked
@@ -329,7 +329,7 @@ schedule '/path/to/example.rb' do
 end
 ```
 
-### Ignore failure, parallel job execution
+## Ignore failure, parallel job execution
 
 Blender will fail the execution immediately if any of the job fails. `ignore_failure` attribute can be used to proceed execution even after failure. This can be declared both per task level as well as globally.
   ```ruby
@@ -344,7 +344,7 @@ Blender will fail the execution immediately if any of the job fails. `ignore_fai
 
 Blender can parallelize job execution in two ways. Via the drivers (like serf, ssh_multi etc) or via the global `concurrent` dsl method which uses a minimal thread pool implementation. Note, the global concurrency dsl method work as job level, and when used jobs are executed in paralle batches as opposed to serial. 
 
-### Event handlers
+## Event handlers
 
 Blende provides an event disptachment facility (inspired from Chef), where arbitrary logic can
 be hooked into the event system (e.g hipchat notification handlers, statsd handlers etc) and blender will automatically invoke them during key events. As of now, events are available before and after run and per job execution. Event dispatch system is likely to get more elaborate and Blender might have few common event handlers(metric, notifications etc) in near future.
