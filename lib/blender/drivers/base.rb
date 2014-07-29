@@ -49,7 +49,6 @@ module Blender
       private
       def default_config
         {
-          timout: 60, 
           ignore_failure: false,
           stdout: File.open(File::NULL, 'w'),
           stdout: File.open(File::NULL, 'w')

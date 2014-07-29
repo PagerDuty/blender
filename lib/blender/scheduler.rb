@@ -99,8 +99,12 @@ module Blender
     end
 
     def default_metadata
-      { timout: 60, ignore_failure: false, concurrency: 0,
-       handlers: [], members: [] }
+      {
+       ignore_failure: false,
+       concurrency: 0,
+       handlers: [],
+       members: []
+      }
     end
   end
 end

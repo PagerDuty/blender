@@ -64,7 +64,6 @@ module Blender
 
       def default_metadata
         {
-        timout: 60,
         ignore_failure: false,
         handlers: [],
         discovery_config: Hash.new{|h,k| h[k] = Hash.new}
