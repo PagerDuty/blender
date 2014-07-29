@@ -10,7 +10,7 @@ describe Blender::Driver::Ssh do
     expect(Net::SSH).to receive(:start).with(
       'h1',
       ENV['USER'],
-      {password: nil}
+      {}
     ).and_return(session)
     driver.execute(tasks, hosts)
   end

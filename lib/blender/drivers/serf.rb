@@ -24,20 +24,24 @@ module Blender
   module Driver
     class Serf < Base
 
-      def filter_by
-        @config[:filter_by]
+      attr_reader :filter_by, :concurrency, :filter_tag
+
+      def initialize(config = {})
+        cfg = config.dup
+        @filter_by =  cfg.delete(:filter_by) || :host
+        @concurrency = cfg.delete(:concurrency) || 1
+        if @filter_by == :tag
+          @filter_tag =  cfg.delete(:filter_tag)
+          raise ArgumentError, 'Must specify filter_tag when filter_by is set to :tag' unless @filter_tag
+        end
+        super(cfg)
       end
 
       def serf_query(command, host)
         responses = []
         Log.debug("Invoking serf query '#{command.query}' with payload '#{command.payload}' against #{@current_host}")
-        Log.debug("Serf RPC address #{@config[:host]}:#{@config[:port]}")
-        serf_config = {
-          host: @config[:host],
-          port: @config[:port],
-          authkey: @config[:authkey]
-        }
-        Serfx.connect(serf_config) do |conn|
+        Log.debug("Serf RPC address #{config[:host]}:#{config[:port]}")
+        Serfx.connect(config) do |conn|
           conn.query(*query_opts(command, host)) do |event|
             responses <<  event
             stdout.puts event.inspect
@@ -65,7 +69,7 @@ module Blender
         when :tag, :none
           0
         else
-          raise ArgumentError, "Unknown filter_by option: #{@config[:filter_by]}"
+          raise ArgumentError, "Unknown filter_by option: #{filter_by}"
         end
       end
 
@@ -76,11 +80,11 @@ module Blender
           opts.merge!(FilterNodes: nodes)
         when :tag
           raise 'filter by :tag only supports single tag' unless nodes.size == 1
-          opts.merge!(FilterTags: {@config[:filter_tag] => nodes.first})
+          opts.merge!(FilterTags: {filter_tag => nodes.first})
         when :none
           raise 'filter by :none only supported with localhost' unless nodes == ['localhost']
         else
-          raise ArgumentError, "Unknown filter_by option: #{@config[:filter_by]}"
+          raise ArgumentError, "Unknown filter_by option: #{filter_by}"
         end
         [ command.query, command.payload, opts]
       end
@@ -97,16 +101,6 @@ module Blender
             end
           end
         end
-      end
-
-      def concurrency
-        config[:concurrency]
-      end
-
-      private
-
-      def default_config
-        super.merge(filter_by: :host, concurrency: 1)
       end
     end
   end

@@ -23,6 +23,14 @@ module Blender
   module Driver
     class Ssh < Base
 
+      attr_reader :user
+
+      def initialize(config = {})
+        cfg = config.dup
+        @user = cfg.delete(:user) || ENV['USER']
+        super(cfg)
+      end
+
       def execute(tasks, hosts)
         Log.debug("SSH execution tasks [#{Array(tasks).size}]")
         Log.debug("SSH on hosts [#{hosts.join(",")}]")
@@ -39,7 +47,7 @@ module Blender
       end
 
       def run_command(command, session)
-        password = @config[:password]
+        password = config[:password]
         command = fixup_sudo(command)
         exit_status = 0
         channel = session.open_channel do |ch|
@@ -73,10 +81,8 @@ module Blender
       private
 
       def ssh_session(host)
-        user = @config[:user] || ENV['USER']
-        ssh_config = { password: @config[:password]}
         Log.debug("Invoking ssh: #{user}@#{host}")
-        Net::SSH.start(host, user, ssh_config)
+        Net::SSH.start(host, user, config)
       end
 
       def fixup_sudo(command)

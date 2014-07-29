@@ -20,42 +20,20 @@ require 'blender/log'
 module Blender
   module Driver
     class Base
-      attr_reader :config
+      attr_reader :config, :events, :stdout, :stderr
 
       ExecOutput = Struct.new(:exitstatus, :stdout, :stderr)
 
       def initialize(config = {})
-        @mutex = Mutex.new
-        @events = config.delete(:events) or fail 'Events needed'
-        @config = default_config.merge(config)
+        cfg = config.dup
+        @stdout = cfg.delete(:stdout) || File.open(File::NULL, 'w')
+        @stderr = cfg.delete(:stderr) || File.open(File::NULL, 'w')
+        @events = cfg.delete(:events) or fail 'Events needed'
+        @config = cfg
       end
 
       def execute(tasks, hosts)
         raise RuntimeError, 'this method must be overridden'
-      end
-
-      def stdout
-        @config[:stdout]
-      end
-
-      def stderr
-        @config[:stdout]
-      end
-
-      def events
-        @events
-      end
-
-      private
-      def default_config
-        {
-          ignore_failure: false,
-          stdout: File.open(File::NULL, 'w'),
-          stdout: File.open(File::NULL, 'w')
-        }
-      end
-      def sync
-        @mutex.synchronize{ yield }
       end
     end
   end
