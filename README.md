@@ -23,6 +23,58 @@ Run[example.rb] started
 Run finished (0.03382832 s)
 ```
 
+Following is an example of running chef client using ssh against 3 hosts:
+```ruby
+members ['host1', 'host2', 'host3']
+global_driver(:ssh, password: ask("Pass: "))
+ssh_task 'run chef' do
+  execute 'sudo /opt/chef/bin/chef-client --no-fork'
+end
+```
+save it in a file name 'chef_run.rb', and execute it as:
+```sh
+blend -f chef_run.rb
+```
+Now, lets change this to do a fleet wide chef run, by discovering all nodes using chef
+search. Blender will run chef on all nodes present in chef server, one by one.
+
+```ruby
+members chef_nodes(node_name: 'foo', client_key: '/path/bar.pem')
+global_driver(:ssh, password: ask("Pass: "))
+ssh_task 'run chef' do
+  execute 'sudo /opt/chef/bin/chef-client --no-fork'
+end
+```
+For any sizable deployments this will be slow, we can instruct blender to parallelize it,
+like this:
+```ruby
+members chef_nodes(node_name: 'foo', client_key: '/path/bar.pem')
+global_driver(:ssh, password: ask("Pass: "))
+ssh_task 'run chef' do
+  execute 'sudo /opt/chef/bin/chef-client --no-fork'
+end
+concurrency 5
+```
+By default blender will halt execution if any of the chef run fails. If you want to proceed
+even if chef run on any single node fails:
+
+```ruby
+members chef_nodes(node_name: 'foo', client_key: '/path/bar.pem')
+global_driver(:ssh, password: ask("Pass: "))
+ssh_task 'run chef' do
+  execute 'sudo /opt/chef/bin/chef-client --no-fork'
+end
+concurrency 5
+```
+By now, hopefully, you got some idea of what blender can do.
+
+
+Next, we'll explore some internals of blender, for advance usage.
+Going back to the first example:
+Script:
+```ruby
+task "echo HelloWorld"
+```
 Under the hood, Blender creates a shell task, and executes the task using shell out driver
 against localhost. In the next example, we are defining a single task to be run against
 3 hosts over ssh.
