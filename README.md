@@ -1,22 +1,22 @@
 # Blender
 
 Blender is a modular remote command execution framework. It can discover nodes
-and run a commands against them. Blender allows cross node workflows to be expressed
-in plain ruby DSL and execute them 'on demand' using command line interface, or scheduled
-periodically using Rufus scheduler, or from arbitrary ruby code/apps.
+and run commands against them. Blender allows cross node workflows to be expressed
+in plain Ruby DSL. It can execute them 'on demand' using command line interface, or schedule
+periodically using Rufus scheduler, or from arbitrary Ruby code/apps.
 
 Following is an example of a simple blender script, where a
 task is executed locally.
 
-Script:
 ```ruby
+# example.rb
 task "echo HelloWorld"
 ```
-Execute it like this:
+You can execute it as follows.
 ```sh
 blend -f example.rb
 ```
-```sh
+```
 Run[example.rb] started
  1 job(s) computed using 'Default' strategy
   Job 1 [echo HelloWorld on localhost] finished
@@ -25,13 +25,14 @@ Run finished (0.03382832 s)
 
 Following is an example of running chef client using ssh against 3 hosts:
 ```ruby
+# chef_run.rb
 members ['host1', 'host2', 'host3']
 global_driver(:ssh, password: ask("Pass: "))
 ssh_task 'run chef' do
   execute 'sudo /opt/chef/bin/chef-client --no-fork'
 end
 ```
-save it in a file name 'chef_run.rb', and execute it as:
+Again, you can execute it as follows.
 ```sh
 blend -f chef_run.rb
 ```
@@ -63,6 +64,7 @@ members chef_nodes(node_name: 'foo', client_key: '/path/bar.pem')
 global_driver(:ssh, password: ask("Pass: "))
 ssh_task 'run chef' do
   execute 'sudo /opt/chef/bin/chef-client --no-fork'
+  ignore_failure true
 end
 concurrency 5
 ```
@@ -71,11 +73,10 @@ By now, hopefully, you got some idea of what blender can do.
 
 Next, we'll explore some internals of blender, for advance usage.
 Going back to the first example:
-Script:
 ```ruby
 task "echo HelloWorld"
 ```
-Under the hood, Blender creates a shell task, and executes the task using shell out driver
+Under the hood, blender creates a shell task, and executes the task using shell out driver
 against localhost. In the next example, we are defining a single task to be run against
 3 hosts over ssh.
 
@@ -139,7 +140,7 @@ can execute `ssh_task`s. Currently blender ships with following tasks and driver
 
   - **shell_task**: execute commands on current host. shell tasks can only have 'localhost'
   as the members. presence of any other hosts in members list will raise exception. shell_tasks
-  are executed using shell_out driver (used Mixlib::ShellOut internally).
+  are executed using shell_out driver (used `Mixlib::ShellOut` internally).
   Example:
   ```ruby
   shell_task 'foo' do
@@ -148,18 +149,18 @@ can execute `ssh_task`s. Currently blender ships with following tasks and driver
   ```
 
   - **ruby_task**: execute ruby blocks against current host. host names from members list is passed
-  to the block. ruby_tasks are executed using Blender::Ruby driver.
+  to the block. ruby_tasks are executed using `Blender::Ruby` driver.
   Example:
   ```ruby
   ruby_task 'baz' do
     execute do |host|
-      puts  "Host name is: #{host}"
+      puts "Host name is: #{host}"
     end
   end
   ```
 
   - **ssh_task**: execute commands against remote hosts using ssh. Blender ships with two ssh drivers,
-  one based on a vanilla ruby net-ssh binding, another based on net-ssh-multi (which supports parallel
+  one based on a vanilla Ruby `net-ssh` binding, another based on `net-ssh-multi` (which supports parallel
   execution)
   Example:
   ```ruby
@@ -171,10 +172,10 @@ can execute `ssh_task`s. Currently blender ships with following tasks and driver
 
   - **serf_task**: execute serf queries against remote hosts. Blender ships with two serf drivers, one for
   fire & forget style serf queries which is used for fast/quick tasks, another one for long running
-  tasks which involves fire and poll periodically till completion, called as async_serf driver, which is
-  based on the Serfx::AsyncJob module.
+  tasks which involves fire and poll periodically till completion, called as `async_serf driver`, which is
+  based on the `Serfx::AsyncJob` module.
 
-  Exmample of a simple serf task:
+  Example of a simple serf task:
   ```ruby
   serf_task 'test' do
     query 'metadata'
@@ -186,29 +187,29 @@ can execute `ssh_task`s. Currently blender ships with following tasks and driver
 
 Whenever a new task is declared blender looks for a compatible driver. Unless a driver is explicitly specified,
 Blender will try its best to reuse the global driver if compatible, else it will create one. By default the
-```global_driver``` is a ```shell_out``` driver. You can define different global_driver using the dsl, and it will affect
+```global_driver``` is a ```shell_out``` driver. You can define different `global_driver` using the dsl, and it will affect
 any tasks defined afterwards. This allows us to customize the driver behavior (like concurrency, stdout sharing
 etc).
 Following is an example of specifyng the global_driver as ssh, with stdout streaming.
 
-  ```ruby
-  global_driver(:ssh, stdout: $stdout, password: ask('SSH pass: '))
+```ruby
+global_driver(:ssh, stdout: $stdout, password: ask('SSH pass: '))
 
-  ssh_task 'run chef' do
-    execute 'sudo chef-client --no-fork'
-    members Array.new(100){|n| "host-#{n}"}
-  end
-  ```
+ssh_task 'run chef' do
+  execute 'sudo chef-client --no-fork'
+  members Array.new(100){|n| "host-#{n}"}
+end
+```
 Other drivers can also be registered and reused across tasks, using the dsl.
 
-   ```ruby
-  # register a serf driver (type), with name `awesome`
-  register_driver(:serf, 'awesome', authkey: 'FOOBAR')
-  serf_task 'chef' do
-    payload 'start'
-    use_driver 'awesome'
-  end
-  ```
+ ```ruby
+# register a serf driver (type), with name `awesome`
+register_driver(:serf, 'awesome', authkey: 'FOOBAR')
+serf_task 'chef' do
+  payload 'start'
+  use_driver 'awesome'
+end
+```
 
 ### Host discovery
 
@@ -245,7 +246,7 @@ Like `node_name` and `client_key` for chef. Defaults for those can also be speci
 init(:chef, client_key: '/path/to/client.pem', node_name: 'foobar')
 ```
 
-will instruct all chef_nodes call to use these default configs. Same applies for serf based
+will instruct all `chef_nodes` call to use these default configs. Same applies for serf based
 discovery.
 
 
@@ -268,49 +269,49 @@ see how the default strategy work.
   end
   ```
 
-will result in 3 jobs. each with ruby_task[test] on host1, ruby_task[test] on host2  and
-ruby_task[test] on host3. And then these three tasks will be executed serially.
+will result in 3 jobs. each with `ruby_task[test]` on host1, `ruby_task[test]` on host2 and
+`ruby_task[test]` on host3. And then these three tasks will be executed serially.
 Following will create 6 jobs.
 
-  ```ruby
-  members ['host1', 'host2', 'host3']
+```ruby
+members ['host1', 'host2', 'host3']
 
-  ruby_task 'test 1' do
-    execute do |host|
-      Blender::Log.info("test 1 on #{host}")
-    end
+ruby_task 'test 1' do
+  execute do |host|
+    Blender::Log.info("test 1 on #{host}")
   end
+end
 
-  ruby_task 'test 2' do
-    execute do |host|
-      Blender::Log.info("test 2 on #{host}")
-    end
+ruby_task 'test 2' do
+  execute do |host|
+    Blender::Log.info("test 2 on #{host}")
   end
-  ```
+end
+```
 
-While the next one will create 5 jobs (second task will give only one job).
+While the next one will create 4 jobs (second task will give only one job).
 
-  ```ruby
-  members ['host1', 'host2', 'host3']
+```ruby
+members ['host1', 'host2', 'host3']
 
-  ruby_task 'test 1' do
-    execute do |host|
-      Blender::Log.info("test 1 on #{host}")
-    end
+ruby_task 'test 1' do
+  execute do |host|
+    Blender::Log.info("test 1 on #{host}")
   end
+end
 
-  ruby_task 'test 2' do
-    execute do |host|
-      Blender::Log.info("test 2 on #{host}")
-    end
-    members ['host3']
+ruby_task 'test 2' do
+  execute do |host|
+    Blender::Log.info("test 2 on #{host}")
   end
-  ```
+  members ['host3']
+end
+```
 The default strategy is conservative, and allows drivers that work against a single remote
 host to be integrated with blender. Also this allows the highest level of fine grain job control.
 
 Apart from the default strategy, Blender ships with two more strategy, they are:
-  - **per task strategy**: this creates one job per task. Following example will create 2 jobs, each with three hosts and one of the ruby_task in them.
+  - **per task strategy**: this creates one job per task. Following example will create 2 jobs, each with three hosts and one of the `ruby_task` in them.
 
   ```ruby
   members ['host1', 'host2', 'host3']
@@ -330,7 +331,7 @@ Apart from the default strategy, Blender ships with two more strategy, they are:
   end
   ```
 per task strategy allows drivers to optimize individual command execution accross multiple hosts. For
-example ssh_multi driver allows parallel command execution across many hosts. And can be used
+example `ssh_multi` driver allows parallel command execution across many hosts. And can be used
 as:
   ```ruby
   strategy :per_task
@@ -364,14 +365,14 @@ Note: this strategy does not work if you have different hosts per tasks.
 
 Its fairly easy to write custom scheduling strategies and they can be used to rewrite or
 rearrange hosts/tasks as you wish. For example, null strategy that return 0 jobs irrespective
-of what tasks or members you pass, or a custome strategy that takes the hosts lists of every tasks and considers only one of them dynamicaaly based on some metrics for jobs.. etc.
+of what tasks or members you pass, or a custome strategy that takes the hosts lists of every tasks and considers only one of them dynamically based on some metrics for jobs, etc.
 
 ## Invoking blender periodially with Rufus schedler
 
 Blender is designed to be used as a standalone script that can be invoked on-demand or
-consumed as a library, i.e. workflows are written in plain ruby objects and invoked
+consumed as a library, i.e. workflows are written in plain Ruby objects and invoked
 from other tools or application. Apart from these, Blender can be use for periodic
-job execution also. Underneath it uses Rufus::Scheduler to trigger Blender run, after
+job execution also. Underneath it uses `Rufus::Scheduler` to trigger Blender run, after
 a fixed interval (can be expressed via cron syntax as well, thanks to Rufus).
 
 Following will run `example.rb` blender script after every 4 hours.
@@ -384,22 +385,22 @@ end
 ## Ignore failure, parallel job execution
 
 Blender will fail the execution immediately if any of the job fails. `ignore_failure` attribute can be used to proceed execution even after failure. This can be declared both per task level as well as globally.
-  ```ruby
-  shell_task 'fail' do
-    command 'ls /does/not/exists'
-    ignore_failure true
-  end
-  shell_task 'will be executed' do
-    command 'echo "Thrust is what we need"'
-  end
-  ```
+```ruby
+shell_task 'fail' do
+  command 'ls /does/not/exists'
+  ignore_failure true
+end
+shell_task 'will be executed' do
+  command 'echo "Thrust is what we need"'
+end
+```
 
-Blender can parallelize job execution in two ways. Via the drivers (like serf, ssh_multi etc) or via the global `concurrent` dsl method which uses a minimal thread pool implementation. Note, the global concurrency dsl method work as job level, and when used jobs are executed in paralle batches as opposed to serial. 
+Blender can parallelize job execution in two ways. Via the drivers (like `serf`, `ssh_multi` etc) or via the global `concurrent` DSL method which uses a minimal thread pool implementation. Note, the global `concurrency` DSL method work as job level, and when used jobs are executed in parallel batches as opposed to serial.
 
 ## Event handlers
 
-Blende provides an event disptachment facility (inspired from Chef), where arbitrary logic can
-be hooked into the event system (e.g hipchat notification handlers, statsd handlers etc) and blender will automatically invoke them during key events. As of now, events are available before and after run and per job execution. Event dispatch system is likely to get more elaborate and Blender might have few common event handlers(metric, notifications etc) in near future.
+Blender provides an event dispatchment facility (inspired from Chef), where arbitrary logic can
+be hooked into the event system (e.g. HipChat notification handlers, statsd handlers, etc) and blender will automatically invoke them during key events. As of now, events are available before and after run and per job execution. Event dispatch system is likely to get more elaborate and blender might have few common event handlers (metric, notifications etc) in near future.
 
 ## License
 [Apache 2](http://www.apache.org/licenses/LICENSE-2.0)
