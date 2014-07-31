@@ -15,14 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'blender/log'
-require 'blender/job'
-require 'blender/drivers/compound'
+require 'blender/drivers/base'
 
 module Blender
   module SchedulingStrategy
-    class Base
-    end
     class Default < Base
       def compute_jobs(tasks)
         Log.debug("Computing jobs from #{tasks.size} tasks")
@@ -32,35 +28,6 @@ module Blender
           Log.debug("Creating job (#{host}|#{task.name})")
           job_id += 1
           Job.new(job_id, task.driver, [task], [host])
-        end
-        Log.debug("Total jobs : #{jobs.size}")
-        jobs
-      end
-    end
-    class PerTask < Base
-      def compute_jobs(tasks)
-        Log.debug("Computing jobs from #{tasks.size} tasks")
-        job_id = 0
-        jobs = tasks.map do |task|
-          hosts = task.hosts
-          Log.debug("Creating job (#{hosts.size}|#{task.name})")
-          job_id += 1
-          Job.new(job_id, task.driver, [task] , hosts)
-        end
-        Log.debug("Total jobs : #{jobs.size}")
-        jobs
-      end
-    end
-    class PerHost < Base
-      def compute_jobs(tasks)
-        Log.debug("Computing jobs from #{tasks.size} tasks")
-        hosts_list = tasks.map(&:hosts).uniq
-        if hosts_list.size != 1
-          raise 'PerHost strategy does not support scheduling tasks with different memebers'
-        end
-        job_id = 1
-        jobs = hosts_list.first.map do |host|
-          Job.new(job_id, Blender::Driver::Compound.new, tasks, [host])
         end
         Log.debug("Total jobs : #{jobs.size}")
         jobs

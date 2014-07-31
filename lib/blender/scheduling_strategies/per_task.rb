@@ -15,29 +15,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'serfx'
-require 'blender/log'
+require 'blender/scheduling_strategies/base'
 
 module Blender
-  module Discovery
-    class Serf
-      def initialize(opts = {})
-        @config = opts
-      end
-      def search(opts = {})
-        tags = opts[:tags] || {}
-        status = opts[:status] || 'alive'
-        name = opts[:name]
-        hosts = []
-        Blender::Log.debug("Serf memeber list call with arguments: Tags=#{tags}")
-        Blender::Log.debug("Serf memeber list call with arguments: status=#{status}")
-        Blender::Log.debug("Serf memeber list call with arguments: Name=#{name}")
-        Serfx.connect(@config) do |conn|
-          conn.members_filtered(tags, status, name).body['Members'].map do |m|
-            hosts << m['Name']
-          end
+  module SchedulingStrategy
+    class PerTask < Base
+      def compute_jobs(tasks)
+        Log.debug("Computing jobs from #{tasks.size} tasks")
+        job_id = 0
+        jobs = tasks.map do |task|
+          hosts = task.hosts
+          Log.debug("Creating job (#{hosts.size}|#{task.name})")
+          job_id += 1
+          Job.new(job_id, task.driver, [task] , hosts)
         end
-        hosts
+        Log.debug("Total jobs : #{jobs.size}")
+        jobs
       end
     end
   end

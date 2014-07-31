@@ -15,13 +15,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'blender/drivers/base'
+
 module Blender
-  module Exceptions
-    class ExecutionFailed < RuntimeError; end
-    class UnsupportedFeature < ArgumentError; end
-    class UnknownDriver < ArgumentError; end
-    class UnknownTask < ArgumentError; end
-    class UnknownSchedulingStrategy < ArgumentError; end
-    class MultipleDrivers < RuntimeError; end
+  module SchedulingStrategy
+    class PerHost < Base
+      def compute_jobs(tasks)
+        Log.debug("Computing jobs from #{tasks.size} tasks")
+        hosts_list = tasks.map(&:hosts).uniq
+        if hosts_list.size != 1
+          raise 'PerHost strategy does not support scheduling tasks with different memebers'
+        end
+        job_id = 1
+        jobs = hosts_list.first.map do |host|
+          Job.new(job_id, Blender::Driver::Compound.new, tasks, [host])
+        end
+        Log.debug("Total jobs : #{jobs.size}")
+        jobs
+      end
+    end
   end
 end

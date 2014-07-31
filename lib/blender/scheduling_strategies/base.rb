@@ -15,13 +15,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+require 'blender/log'
+require 'blender/job'
+
 module Blender
-  module Exceptions
-    class ExecutionFailed < RuntimeError; end
-    class UnsupportedFeature < ArgumentError; end
-    class UnknownDriver < ArgumentError; end
-    class UnknownTask < ArgumentError; end
-    class UnknownSchedulingStrategy < ArgumentError; end
-    class MultipleDrivers < RuntimeError; end
+  module SchedulingStrategy
+    class Base
+      def compute_jobs(tasks)
+        raise RuntimeError, 'Must be overridden'
+      end
+    end
   end
 end

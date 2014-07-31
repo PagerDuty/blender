@@ -15,8 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'blender/discoveries/chef'
-require 'blender/discoveries/serf'
 require 'blender/utils/refinements'
 
 module Blender
@@ -27,36 +25,19 @@ module Blender
       discovery_config[type].merge!(opts).freeze
     end
 
-    def init_serf(opts = {})
-      init(:serf, opts)
-    end
-
-    def init_chef(opts = {})
-      init(:chef, opts)
-    end
-
     def build_discovery(type, opts = {})
       disco_klass = Blender::Discovery.const_get(camelcase(type.to_s).to_sym)
       disco_opts = discovery_config[type].merge(opts)
       disco_klass.new(disco_opts)
     end
 
-    def serf_nodes(options = {})
+    def search_with_config(type, options = {})
       search_opts = options.delete(:search) || {}
-      build_discovery(:serf, options).search(search_opts)
+      build_discovery(type, options).search(search_opts)
     end
 
-    def serf_search(options = {})
-      serf_nodes(search: options)
-    end
-
-    def chef_search(options = {})
-      chef_nodes(search: options)
-    end
-
-    def chef_nodes(options = {})
-      search_opts = options.delete(:search) || {}
-      build_discovery(:chef, options).search(search_opts)
+    def search(options = {})
+      search_with_config(search: options)
     end
   end
 end
