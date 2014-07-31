@@ -18,7 +18,6 @@
 require 'net/ssh'
 require 'blender/exceptions'
 require 'blender/drivers/ssh'
-require 'chef/monkey_patches/net-ssh-multi'
 
 module Blender
   module Driver

@@ -26,8 +26,6 @@ require 'blender/utils/refinements'
 require 'blender/drivers/ssh'
 require 'blender/drivers/ssh_multi'
 require 'blender/drivers/shellout'
-require 'blender/drivers/serf'
-require 'blender/drivers/serf_async'
 require 'blender/drivers/ruby'
 require 'blender/discovery'
 
