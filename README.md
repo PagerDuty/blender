@@ -41,7 +41,7 @@ search. Blender will run chef on all nodes present in chef server, one by one.
 
 ```ruby
 members chef_nodes(node_name: 'foo', client_key: '/path/bar.pem')
-global_driver(:ssh, password: ask("Pass: "))
+
 ssh_task 'run chef' do
   execute 'sudo /opt/chef/bin/chef-client --no-fork'
 end
@@ -50,7 +50,7 @@ For any sizable deployments this will be slow, we can instruct blender to parall
 like this:
 ```ruby
 members chef_nodes(node_name: 'foo', client_key: '/path/bar.pem')
-global_driver(:ssh, password: ask("Pass: "))
+
 ssh_task 'run chef' do
   execute 'sudo /opt/chef/bin/chef-client --no-fork'
 end
@@ -61,7 +61,7 @@ even if chef run on any single node fails:
 
 ```ruby
 members chef_nodes(node_name: 'foo', client_key: '/path/bar.pem')
-global_driver(:ssh, password: ask("Pass: "))
+
 ssh_task 'run chef' do
   execute 'sudo /opt/chef/bin/chef-client --no-fork'
   ignore_failure true
@@ -69,7 +69,6 @@ end
 concurrency 5
 ```
 By now, hopefully, you got some idea of what blender can do.
-
 
 Next, we'll explore some internals of blender, for advance usage.
 Going back to the first example:
