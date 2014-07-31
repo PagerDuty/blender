@@ -31,13 +31,14 @@ module Blender
       disco_klass.new(disco_opts)
     end
 
-    def search_with_config(type, options = {})
-      search_opts = options.delete(:search) || {}
+    def search_with_config(type, opts = {})
+      options = opts.dup
+      search_opts = options.delete(:search)
       build_discovery(type, options).search(search_opts)
     end
 
-    def search(options = {})
-      search_with_config(search: options)
+    def search(type, options = nil)
+      search_with_config(type, search: options)
     end
   end
 end

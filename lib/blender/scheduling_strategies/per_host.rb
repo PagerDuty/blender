@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'blender/drivers/base'
+require 'blender/drivers/compound'
 
 module Blender
   module SchedulingStrategy
