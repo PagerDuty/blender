@@ -8,6 +8,8 @@ require 'rspec'
 require 'rspec/mocks'
 require 'rspec/expectations'
 require 'blender'
+require 'blender/scheduling_strategies/per_host'
+require 'blender/scheduling_strategies/per_task'
 
 module SpecHelper
   def create_task(name, driver = nil)

@@ -51,32 +51,6 @@ describe Blender::Scheduler do
         expect(task.driver).to be_kind_of(Blender::Driver::Ssh)
       end
     end
-    describe'#serf_task' do
-      before do
-        scheduler.serf_task('test') do
-          members ['b']
-          query 'foo'
-          payload 'bar'
-          no_ack true
-        end
-      end
-      it 'should have correct host list' do
-        expect(task.hosts).to eq(['b'])
-      end
-      it 'should use the serf task subclass' do
-        expect(task).to be_kind_of(Blender::Task::Serf)
-      end
-      it 'should use the serquery inner class for command' do
-        expect(task.command).to be_kind_of(Blender::Task::Serf::SerfQuery)
-      end
-      it 'should use serf driver subclass' do
-        expect(task.driver).to be_kind_of(Blender::Driver::Serf)
-      end
-      it 'should allow setting up serf query and payload' do
-        expect(task.command.query).to eq('foo')
-        expect(task.command.payload).to eq('bar')
-      end
-    end
     describe '#ruby_task' do
       before do
         scheduler.ruby_task('test') do |t|
@@ -131,9 +105,10 @@ describe Blender::Scheduler do
       expect(d.config[:foo]).to be(:bar)
     end
     it '#register_driver' do
-      scheduler.register_driver(:serf, 'foo', host: '8.8.8.8')
+      class Blender::Driver::Foo < Blender::Driver::Base ; end
+      scheduler.register_driver(:foo, 'foo', host: '8.8.8.8')
       d = scheduler.registered_drivers['foo']
-      expect(d).to be_kind_of(Blender::Driver::Serf)
+      expect(d).to be_kind_of(Blender::Driver::Foo)
     end
     it 'should have no tasks' do
       expect(scheduler.tasks).to be_empty
