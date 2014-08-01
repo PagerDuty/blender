@@ -19,12 +19,6 @@ module SpecHelper
     end
     t
   end
-  def create_serf_task(name)
-    Blender::Task::Serf.new(name).tap do |t|
-      t.query 'test-query'
-      t.payload 'test-payload'
-    end
-  end
 end
 
 RSpec.configure do |config|
