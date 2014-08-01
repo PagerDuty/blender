@@ -79,37 +79,29 @@ module Blender
       task
     end
 
+    def append_task(type, task)
+      Log.debug("Appended task:#{task.name}")
+      validate_driver!(task, type)
+      @tasks << task
+    end
+
     def shell_task(name, &block)
       task = build_task(name, :shell_out)
       task.members(['localhost'])
       task.instance_eval(&block) if block_given?
-      Log.debug("Appended task:#{task.name}")
-      validate_driver!(task, :shell_out)
-      @tasks << task
+      append_task(:shell_out, task)
     end
 
     def ruby_task(name, &block)
       task = build_task(name, :ruby)
       task.instance_eval(&block) if block_given?
-      Log.debug("Appended task:#{task.name}")
-      validate_driver!(task, :ruby)
-      @tasks << task
+      append_task(:ruby, task)
     end
 
     def ssh_task(name, &block)
       task = build_task(name, :ssh)
       task.instance_eval(&block) if block_given?
-      Log.debug("Appended task:#{task.name}")
-      validate_driver!(task, :ssh)
-      @tasks << task
-    end
-
-    def serf_task(name, &block)
-      task = build_task(name, :serf)
-      task.instance_eval(&block) if block_given?
-      Log.debug("Appended task:#{task.name}")
-      validate_driver!(task, :serf)
-      @tasks << task
+      append_task(:ssh, task)
     end
 
     def strategy(strategy)
