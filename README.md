@@ -1,145 +1,90 @@
 # Blender
 
-Blender is a modular remote command execution framework. It can discover nodes
-and run commands against them. Blender allows cross node workflows to be expressed
-in plain Ruby DSL. It can execute them 'on demand' using command line interface, or schedule
-periodically using Rufus scheduler, or from arbitrary Ruby code/apps.
+Blender is a modular remote command execution framework. Blender provides few basic
+primitives to automate cross server workflows. Workflows can be expressed in plain
+ruby DSL and executed using the CLI.
 
-Following is an example of a simple blender script, where a
-task is executed locally.
+Following is an example of a simple blender script that will update the package
+index of three ubuntu servers.
 
 ```ruby
 # example.rb
-task "echo HelloWorld"
+ssh_task 'update' do
+  execute 'sudo apt-get update -y'
+  members ['ubuntu01', 'ubuntu02', 'ubuntu03']
+end
 ```
-You can execute it as follows.
+
+Which can execute it as:
 ```sh
 blend -f example.rb
 ```
+Output:
 ```
 Run[example.rb] started
- 1 job(s) computed using 'Default' strategy
-  Job 1 [echo HelloWorld on localhost] finished
-Run finished (0.03382832 s)
+ 3 job(s) computed using 'Default' strategy
+  Job 1 [update on ubuntu01] finished
+  Job 2 [update on ubuntu02] finished
+  Job 3 [update on ubuntu03] finished
+Run finished (42.228923876 s)
 ```
+An workflow can have multiple tasks, individual tasks can have different members
+which can be run in parallel.
 
-Following is an example of running chef client using ssh against 3 hosts:
 ```ruby
-# chef_run.rb
-members ['host1', 'host2', 'host3']
-global_driver(:ssh, password: ask("Pass: "))
-ssh_task 'run chef' do
-  execute 'sudo /opt/chef/bin/chef-client --no-fork'
+# example.rb
+ssh_task 'update' do
+  execute 'sudo apt-get update -y'
+  members ['ubuntu01', 'ubuntu02', 'ubuntu03']
 end
+
+ssh_task 'install' do
+  execute 'sudo apt-get install screen -y'
+  members ['ubuntu01', 'ubuntu03']
+end
+
+concurrency 2
 ```
-Again, you can execute it as follows.
+Output:
 ```sh
-blend -f chef_run.rb
-```
-Now, lets change this to do a fleet wide chef run, by discovering all nodes using chef
-search. Blender will run chef on all nodes present in chef server, one by one.
-
-```ruby
-members chef_nodes(node_name: 'foo', client_key: '/path/bar.pem')
-
-ssh_task 'run chef' do
-  execute 'sudo /opt/chef/bin/chef-client --no-fork'
-end
-```
-For any sizable deployments this will be slow, we can instruct blender to parallelize it,
-like this:
-```ruby
-members chef_nodes(node_name: 'foo', client_key: '/path/bar.pem')
-
-ssh_task 'run chef' do
-  execute 'sudo /opt/chef/bin/chef-client --no-fork'
-end
-concurrency 5
-```
-By default blender will halt execution if any of the chef run fails. If you want to proceed
-even if chef run on any single node fails:
-
-```ruby
-members chef_nodes(node_name: 'foo', client_key: '/path/bar.pem')
-
-ssh_task 'run chef' do
-  execute 'sudo /opt/chef/bin/chef-client --no-fork'
-  ignore_failure true
-end
-concurrency 5
-```
-By now, hopefully, you got some idea of what blender can do.
-
-Next, we'll explore some internals of blender, for advance usage.
-Going back to the first example:
-```ruby
-task "echo HelloWorld"
-```
-Under the hood, blender creates a shell task, and executes the task using shell out driver
-against localhost. In the next example, we are defining a single task to be run against
-3 hosts over ssh.
-
-```ruby
-members ['host1.example.com', 'host2.example.com', 'host3.example.com']
-
-ssh_task "check ip address" do
-  execute "ifconfig -a"
-end
-```
-You can define multiple tasks, and individual tasks can declare their own
-target hosts, like this:
-
-```ruby
-members ['host1.example.com', 'host2.example.com', 'host3.example.com']
-
-ssh_task "check ip address" do
-  execute "ifconfig -a"
-end
-
-ssh_task "check load average" do
-  execute "w"
-  members ['host2.example.com', 'host3.example.com']
-end
-
-ssh_task "check memory" do
-  execute "free -m"
-  members ['host5.example.com']
-end
+Run[blends/example.rb] started
+ 5 job(s) computed using 'Default' strategy
+  Job 1 [update on ubuntu01] finished
+  Job 2 [update on ubuntu02] finished
+  Job 4 [install on ubuntu01] finished
+  Job 3 [update on ubuntu03] finished
+  Job 5 [install on ubuntu03] finished
+Run finished (4.462043017 s)
 ```
 
-If a task does not declare its own members (i.e. target hosts), global members
-(host1, host2 and host3) will be assumed. A blender script can have multiple
-tasks of differenet types.
+Blender provides various types of task execution (like arbitrary ruby code,
+commands over ssh, serf handlers etc) which can ease automating large cluster
+maintenance, multi stage provisioning, establishing cross server feedback
+loops etc.
 
 ## Concepts
 
-Blender is composed of three major sub-components, these are:
+Blender is composed of two components:
 
-  * **Tasks and Drivers** - Tasks encapsulate commands (or equivalent abstraction). A blender
-  script can have a series of tasks. Drivers execute the commands (defined
-  inside tasks), against local or remote hosts (e.g. ssh driver). Individual task
-  types can only be run with a compatible set of drivers. Some of the task types has more
-  than one drivers.
+  * **Tasks and drivers** - Tasks encapsulate commands (or equivalent abstraction). A blender
+  script can have multiple tasks. Tasks are executed using drivers. Tasks can declare their
+  target hosts.
 
-  * **Discoveries** - Responsible for host discovery. Blender tasks have members
-  associated with them. This can be a hardcoded list of hosts, but for dynamic
-  infrastructure, you can search and dicover nodes that can be assigned globally,
-  or against individual tasks.
+  * **Scheduling stratgy** - Determines the order of task execution across the hosts. 
+  Every blender scripts has one and only one scheduling strategy. Scheduling strategies
+  uses the task list as input and produces a list of jobs, to be executed using drivers.
 
-  * **Scheduling stratgy** - Logic that determines the order of command execution. This include
-  the order of hosts as well in a distributed workflow. Scheduling strategy takes the workflow
-  description as input and produces a list of jobs (to be executed using drivers).
 
-### Task & Driver
+### Tasks
 
 Tasks and drivers compliment each other. Tasks act as front end, where we declare
-what needs to be done, while drivers are used to interpret how those tasks can be done (backends).
+what needs to be done, while drivers are used to interpret how those tasks can be done.
 For example `ssh_task` can be used to declare tasks, while `ssh` and `ssh_multi` driver
-can execute `ssh_task`s. Currently blender ships with following tasks and drivers:
+can execute `ssh_task`s. Blender core ships with following tasks and drivers:
 
   - **shell_task**: execute commands on current host. shell tasks can only have 'localhost'
-  as the members. presence of any other hosts in members list will raise exception. shell_tasks
-  are executed using shell_out driver (used `Mixlib::ShellOut` internally).
+  as its members. presence of any other hosts in members list will raise exception. shell_tasks
+  are executed using shell_out driver.
   Example:
   ```ruby
   shell_task 'foo' do
@@ -169,94 +114,24 @@ can execute `ssh_task`s. Currently blender ships with following tasks and driver
   end
   ```
 
-  - **serf_task**: execute serf queries against remote hosts. Blender ships with two serf drivers, one for
-  fire & forget style serf queries which is used for fast/quick tasks, another one for long running
-  tasks which involves fire and poll periodically till completion, called as `async_serf driver`, which is
-  based on the `Serfx::AsyncJob` module.
+As mentioned earlier tasks are executed using drivers. Tasks can declare their preferred driver or
+Blender will assign a driver to them automatically. Blender will reuse the global driver if its
+compatible, else it will create one. By default the ```global_driver``` is a ```shell_out``` driver.
+Drivers can expose host concurrency, stdout/stderr streaming and various other customizations,
+specific to their own implementations.
 
-  Example of a simple serf task:
-  ```ruby
-  serf_task 'test' do
-    query 'metadata'
-    payload 'ipaddress'
-    timeout 4
-    members ['host1', 'host2']
-  end
-  ```
+### Scheduling strategies
 
-Whenever a new task is declared blender looks for a compatible driver. Unless a driver is explicitly specified,
-Blender will try its best to reuse the global driver if compatible, else it will create one. By default the
-```global_driver``` is a ```shell_out``` driver. You can define different `global_driver` using the dsl, and it will affect
-any tasks defined afterwards. This allows us to customize the driver behavior (like concurrency, stdout sharing
-etc).
-Following is an example of specifyng the global_driver as ssh, with stdout streaming.
-
-```ruby
-global_driver(:ssh, stdout: $stdout, password: ask('SSH pass: '))
-
-ssh_task 'run chef' do
-  execute 'sudo chef-client --no-fork'
-  members Array.new(100){|n| "host-#{n}"}
-end
-```
-Other drivers can also be registered and reused across tasks, using the dsl.
-
- ```ruby
-# register a serf driver (type), with name `awesome`
-register_driver(:serf, 'awesome', authkey: 'FOOBAR')
-serf_task 'chef' do
-  payload 'start'
-  use_driver 'awesome'
-end
-```
-
-### Host discovery
-
-Blender allows discovering hosts dynamically. It ships with chef and serf based host
-discoveries. Discovery DSL can be consumed globally to define a host list, or per task.
-Following are some examples:
-
-  - **serf**: discover hosts using serf membership
-
-  ```ruby
-  ruby_task 'print host name' do
-    execute do |host|
-      Blender::Log.info("Host: #{host}")
-    end
-    members serf_nodes(name: 'web-.*')
-  end
-  ```
-
-  - **chef**: discover hosts using Chef search
-
-  ```ruby
-  ruby_task 'print host name' do
-    execute do |host|
-      Blender::Log.info("Host: #{host}")
-    end
-    members chef_nodes(search: 'roles:web')
-  end
-  ```
-Discovery specific DSL methods can take additional options to specify configuration options.
-Like `node_name` and `client_key` for chef. Defaults for those can also be specified using
-`init` DSL method.
-
-```ruby
-init(:chef, client_key: '/path/to/client.pem', node_name: 'foobar')
-```
-
-will instruct all `chef_nodes` call to use these default configs. Same applies for serf based
-discovery.
-
-
-### Scheduling strategies and Job
-
-Scheduling strategies are perhaps logically most crucial part of blender. They decide the
-order of command execution across distributed nodes in blender. Each blender script is invoked using one strategy. Consider them as a transformation, where the input is tasks and ouput is
+Scheduling strategies are the most crucial part of a blender script. They decide the
+order of command execution across distributed nodes in blender. Each blender script is
+ invoked using one strategy. Consider them as a transformation, where the input is tasks and ouput is
 jobs. Tasks and job are pretty similar in their structures (both holds command and hosts),
 except a jobs can hold multiple tasks within them. We'll come to this later, but first, lets
 see how the default strategy work.
-  - **default strategy**: the default strategy takes the list of declared tasks (and associated members in each tasks) breaks them up into per node jobs. For example:
+
+  - **default strategy**: the default strategy takes the list of declared tasks (and associated members
+in each tasks) breaks them up into per node jobs.
+ For example:
 
   ```ruby
   members ['host1', 'host2', 'host3']
@@ -268,49 +143,51 @@ see how the default strategy work.
   end
   ```
 
-will result in 3 jobs. each with `ruby_task[test]` on host1, `ruby_task[test]` on host2 and
-`ruby_task[test]` on host3. And then these three tasks will be executed serially.
-Following will create 6 jobs.
+  will result in 3 jobs. each with `ruby_task[test]` on host1, `ruby_task[test]` on host2 and
+  `ruby_task[test]` on host3. And then these three tasks will be executed serially.
+  Following will create 6 jobs.
 
-```ruby
-members ['host1', 'host2', 'host3']
+  ```ruby
+  members ['host1', 'host2', 'host3']
 
-ruby_task 'test 1' do
-  execute do |host|
-    Blender::Log.info("test 1 on #{host}")
+  ruby_task 'test 1' do
+    execute do |host|
+      Blender::Log.info("test 1 on #{host}")
+    end
   end
-end
 
-ruby_task 'test 2' do
-  execute do |host|
-    Blender::Log.info("test 2 on #{host}")
+  ruby_task 'test 2' do
+    execute do |host|
+      Blender::Log.info("test 2 on #{host}")
+    end
   end
-end
-```
+  ```
 
-While the next one will create 4 jobs (second task will give only one job).
+  While the next one will create 4 jobs (second task will give only one job).
 
-```ruby
-members ['host1', 'host2', 'host3']
+  ```ruby
+  members ['host1', 'host2', 'host3']
 
-ruby_task 'test 1' do
-  execute do |host|
-    Blender::Log.info("test 1 on #{host}")
+  ruby_task 'test 1' do
+    execute do |host|
+      Blender::Log.info("test 1 on #{host}")
+    end
   end
-end
 
-ruby_task 'test 2' do
-  execute do |host|
-    Blender::Log.info("test 2 on #{host}")
+  ruby_task 'test 2' do
+    execute do |host|
+      Blender::Log.info("test 2 on #{host}")
+    end
+    members ['host3']
   end
-  members ['host3']
-end
-```
-The default strategy is conservative, and allows drivers that work against a single remote
-host to be integrated with blender. Also this allows the highest level of fine grain job control.
+  ```
+  The default strategy is conservative, and allows drivers that work against a single remote
+  host to be integrated with blender. Also this allows the highest level of fine grain job control.
 
-Apart from the default strategy, Blender ships with two more strategy, they are:
-  - **per task strategy**: this creates one job per task. Following example will create 2 jobs, each with three hosts and one of the `ruby_task` in them.
+  Apart from the default strategy, Blender ships with two more strategy, they are:
+
+  - **per task strategy**: this creates one job per task. Following example will
+  create 2 jobs, each with three hosts and one of the `ruby_task` in them.
 
   ```ruby
   members ['host1', 'host2', 'host3']
@@ -329,9 +206,10 @@ Apart from the default strategy, Blender ships with two more strategy, they are:
     end
   end
   ```
-per task strategy allows drivers to optimize individual command execution accross multiple hosts. For
-example `ssh_multi` driver allows parallel command execution across many hosts. And can be used
-as:
+
+  per task strategy allows drivers to optimize individual command execution accross multiple hosts. For
+  example `ssh_multi` driver allows parallel command execution across many hosts. And can be used
+  as:
   ```ruby
   strategy :per_task
   global_driver(:ssh_multi, concurrency: 50)
@@ -342,8 +220,11 @@ as:
   Note: if we use the default strategy, ssh_multi driver wont be able to leverage its
   concurrency  features, as the resultant jobs (the driver will receive) will have only one host.
 
-  - **per host strategy**: it creates one job per host. Following example will create 3 jobs. each with one host and 2 ruby tasks. Thus two tasks will be executed in one host, then on the next one.. follow on. Think of deployments with rolling restart like scenarios. This also allows drivers
-to optimize multiple tasks/commandsi execution against individual hosts (session reuse etc).
+  - **per host strategy**: it creates one job per host. Following example will create
+ 3 jobs. each with one host and 2 ruby tasks. Thus two tasks will be executed in one
+ host, then on the next one.. follow on. Think of deployments with rolling restart like
+ scenarios. This also allows drivers to optimize multiple tasks/commandsi execution
+ against individual hosts (session reuse etc).
 
   ```ruby
   strategy :per_host
@@ -360,11 +241,48 @@ to optimize multiple tasks/commandsi execution against individual hosts (session
     end
   end
   ```
-Note: this strategy does not work if you have different hosts per tasks.
+  Note: this strategy does not work if you have different hosts per tasks.
 
 Its fairly easy to write custom scheduling strategies and they can be used to rewrite or
 rearrange hosts/tasks as you wish. For example, null strategy that return 0 jobs irrespective
-of what tasks or members you pass, or a custome strategy that takes the hosts lists of every tasks and considers only one of them dynamically based on some metrics for jobs, etc.
+of what tasks or members you pass, or a custome strategy that takes the hosts lists of every
+tasks and considers only one of them dynamically based on some metrics for jobs, etc.
+
+### Host discovery
+
+For workflows that depends on dynamic infrastructure, where host names are changing,
+Blender provides abstractions that facilitate discovering them.
+[blender-chef](https://github.com/PagerDuty/blender-chef) and
+[blender-serf](https://github.com/PagerDuty/blender-serf) uses this and allows remote job orchestration
+for chef or serf managed infrastructure.
+
+Following are some examples:
+
+  - **serf**: discover hosts using serf membership
+
+  ```ruby
+  require 'blender/serf'
+
+  ruby_task 'print host name' do
+    execute do |host|
+      Blender::Log.info("Host: #{host}")
+    end
+    members search(:serf, name: '^lt-.*$')
+  end
+  ```
+
+  - **chef**: discover hosts using Chef search
+
+  ```ruby
+  require 'blender/dscoveries/chef'
+
+  ruby_task 'print host name' do
+    execute do |host|
+      Blender::Log.info("Host: #{host}")
+    end
+    members search(:chef, 'roles:web')
+  end
+  ```
 
 ## Invoking blender periodially with Rufus schedler
 
@@ -375,26 +293,28 @@ job execution also. Underneath it uses `Rufus::Scheduler` to trigger Blender run
 a fixed interval (can be expressed via cron syntax as well, thanks to Rufus).
 
 Following will run `example.rb` blender script after every 4 hours.
-```ruby
-schedule '/path/to/example.rb' do
-  cron '* */4 * * *'
-end
-```
+  ```ruby
+  schedule '/path/to/example.rb' do
+    cron '* */4 * * *'
+  end
+  ```
 
-## Ignore failure, parallel job execution
+## Ignore failure
 
-Blender will fail the execution immediately if any of the job fails. `ignore_failure` attribute can be used to proceed execution even after failure. This can be declared both per task level as well as globally.
-```ruby
-shell_task 'fail' do
-  command 'ls /does/not/exists'
-  ignore_failure true
-end
-shell_task 'will be executed' do
-  command 'echo "Thrust is what we need"'
-end
-```
+Blender will fail the execution immediately if any of the job fails. `ignore_failure`
+attribute can be used to proceed execution even after failure. This can be declared
+both per task level as well as globally.
 
-Blender can parallelize job execution in two ways. Via the drivers (like `serf`, `ssh_multi` etc) or via the global `concurrent` DSL method which uses a minimal thread pool implementation. Note, the global `concurrency` DSL method work as job level, and when used jobs are executed in parallel batches as opposed to serial.
+  ```ruby
+  shell_task 'fail' do
+    command 'ls /does/not/exists'
+    ignore_failure true
+  end
+  shell_task 'will be executed' do
+    command 'echo "Thrust is what we need"'
+  end
+  ```
+
 
 ## Event handlers
 
