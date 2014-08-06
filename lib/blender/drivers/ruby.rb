@@ -44,7 +44,7 @@ module Blender
           STDERR.reopen(stderr)
           command.call(host)
         rescue StandardError => e
-          err = e.message
+          err = e.message + "\nBacktrace:" + e.backtrace.join("\n")
           exit_status = -1
         ensure
           STDOUT.reopen(current_stdout)
