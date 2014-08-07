@@ -57,11 +57,6 @@ module Blender
       end
     end
 
-    def global_driver(type, opts = {})
-      @default_driver = driver(type, opts)
-      @default_driver.freeze
-    end
-
     def register_handler(handler)
       @events.register(handler)
     end
@@ -83,7 +78,6 @@ module Blender
         opts.merge!(task.driver_opts)
         task.use_driver(driver(type, opts))
       end
-      validate_driver!(task, type)
       @tasks << task
     end
 
@@ -129,25 +123,5 @@ module Blender
     end
 
     alias_method :task, :shell_task
-    private
-    def validate_driver!(t, type)
-      klass = Blender::Driver.const_get(camelcase(type.to_s).to_sym)
-      case t.driver
-      when String
-        unless @registered_drivers.key?(t.driver)
-          raise "Unknown driver #{t.driver} for task #{t.name}"
-        else
-          t.use_driver(@registered_drivers[t.driver])
-        end
-      when Blender::Driver::Base
-        if klass
-          unless t.driver.is_a?(klass)
-            raise "Incompatible driver for task #{t.name} expected:#{klass} got:#{t.driver.class}"
-          end
-        end
-      else
-        raise "Unknown driver #{t.driver} for task #{t.name}"
-      end
-    end
   end
 end

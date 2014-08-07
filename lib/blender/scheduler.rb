@@ -30,9 +30,9 @@ module Blender
 
     include SchedulerDSL
 
-    attr_reader :metadata, :name, :registered_discoveries
+    attr_reader :metadata, :name
     attr_reader :scheduling_strategy, :init_config
-    attr_reader :events, :tasks, :default_driver, :registered_drivers
+    attr_reader :events, :tasks
 
     def initialize(name, tasks = [], metadata = {})
       @name = name
@@ -40,9 +40,6 @@ module Blender
       @metadata = default_metadata.merge(metadata)
       @events = Blender::EventDispatcher.new
       events.register(Blender::Handlers::Doc.new)
-      @registered_discoveries = {}
-      @registered_drivers = {}
-      @default_driver = nil
       @scheduling_strategy = nil
       @init_config = Hash.new{|h,k| h[k] = Hash.new}
     end
