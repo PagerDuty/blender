@@ -34,6 +34,10 @@ module Blender
     include Blender::Utils::Refinements
     include Blender::Discovery
 
+    def init(type, opts = {})
+      init_config[type].merge!(opts)
+    end
+
     def log_level(level)
       Blender::Log.level = level
     end
@@ -58,10 +62,6 @@ module Blender
       @default_driver.freeze
     end
 
-    def register_driver(type, name, config = {})
-      @registered_drivers[name] = driver(type, config.merge(events: @events).dup)
-    end
-
     def register_handler(handler)
       @events.register(handler)
     end
@@ -69,18 +69,20 @@ module Blender
     def build_task(name, type)
       task_klass = Blender::Task.const_get(camelcase(type.to_s).to_sym)
       driver_klass = Blender::Driver.const_get(camelcase(type.to_s).to_sym)
-      task = task_klass.new(name, discovery_config: discovery_config)
+      task = task_klass.new(name, init_config: init_config[type])
       task.members(metadata[:members]) unless metadata[:members].empty?
-      if @default_driver.is_a?(driver_klass)
-        task.use_driver(@default_driver)
-      else
-        task.use_driver(driver(type, events: @events))
-      end
       task
     end
 
     def append_task(type, task)
       Log.debug("Appended task:#{task.name}")
+      klass = Blender::Driver.const_get(camelcase(type.to_s).to_sym)
+      if task.driver.nil?
+        opts = {}
+        opts.merge!(init_config[type]) if init_config[type]
+        opts.merge!(task.driver_opts)
+        task.use_driver(driver(type, opts))
+      end
       validate_driver!(task, type)
       @tasks << task
     end

@@ -104,12 +104,6 @@ describe Blender::Scheduler do
       expect(d).to be_kind_of(Blender::Driver::Ssh)
       expect(d.config[:foo]).to be(:bar)
     end
-    it '#register_driver' do
-      class Blender::Driver::Foo < Blender::Driver::Base ; end
-      scheduler.register_driver(:foo, 'foo', host: '8.8.8.8')
-      d = scheduler.registered_drivers['foo']
-      expect(d).to be_kind_of(Blender::Driver::Foo)
-    end
     it 'should have no tasks' do
       expect(scheduler.tasks).to be_empty
     end
