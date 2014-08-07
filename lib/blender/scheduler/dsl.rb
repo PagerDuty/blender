@@ -34,6 +34,10 @@ module Blender
     include Blender::Utils::Refinements
     include Blender::Discovery
 
+    def init(type, opts = {})
+      init_config[type].merge!(opts)
+    end
+
     def log_level(level)
       Blender::Log.level = level
     end
@@ -53,15 +57,6 @@ module Blender
       end
     end
 
-    def global_driver(type, opts = {})
-      @default_driver = driver(type, opts)
-      @default_driver.freeze
-    end
-
-    def register_driver(type, name, config = {})
-      @registered_drivers[name] = driver(type, config.merge(events: @events).dup)
-    end
-
     def register_handler(handler)
       @events.register(handler)
     end
@@ -69,19 +64,20 @@ module Blender
     def build_task(name, type)
       task_klass = Blender::Task.const_get(camelcase(type.to_s).to_sym)
       driver_klass = Blender::Driver.const_get(camelcase(type.to_s).to_sym)
-      task = task_klass.new(name, discovery_config: discovery_config)
+      task = task_klass.new(name, init_config: init_config[type])
       task.members(metadata[:members]) unless metadata[:members].empty?
-      if @default_driver.is_a?(driver_klass)
-        task.use_driver(@default_driver)
-      else
-        task.use_driver(driver(type, events: @events))
-      end
       task
     end
 
     def append_task(type, task)
       Log.debug("Appended task:#{task.name}")
-      validate_driver!(task, type)
+      klass = Blender::Driver.const_get(camelcase(type.to_s).to_sym)
+      if task.driver.nil?
+        opts = {}
+        opts.merge!(init_config[type]) if init_config[type]
+        opts.merge!(task.driver_opts)
+        task.use_driver(driver(type, opts))
+      end
       @tasks << task
     end
 
@@ -127,25 +123,5 @@ module Blender
     end
 
     alias_method :task, :shell_task
-    private
-    def validate_driver!(t, type)
-      klass = Blender::Driver.const_get(camelcase(type.to_s).to_sym)
-      case t.driver
-      when String
-        unless @registered_drivers.key?(t.driver)
-          raise "Unknown driver #{t.driver} for task #{t.name}"
-        else
-          t.use_driver(@registered_drivers[t.driver])
-        end
-      when Blender::Driver::Base
-        if klass
-          unless t.driver.is_a?(klass)
-            raise "Incompatible driver for task #{t.name} expected:#{klass} got:#{t.driver.class}"
-          end
-        end
-      else
-        raise "Unknown driver #{t.driver} for task #{t.name}"
-      end
-    end
   end
 end

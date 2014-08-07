@@ -27,6 +27,7 @@ module Blender
       attr_reader :hosts
       attr_reader :driver
       attr_reader :command
+      attr_reader :driver_opts
 
       def initialize(name, metadata = {})
         @name = name
@@ -34,6 +35,7 @@ module Blender
         @hosts = []
         @command = name
         @driver = nil
+        @driver_opts = {}
       end
 
       def use_driver(driver)
@@ -44,8 +46,12 @@ module Blender
         @metadata[:ignore_failure] = value
       end
 
-      def discovery_config
-        @metadata[:discovery_config]
+      def init_config
+        @metadata[:init_config]
+      end
+
+      def driver_options(opts)
+        @driver_opts =  opts
       end
 
       def execute(cmd)
@@ -65,8 +71,7 @@ module Blender
       def default_metadata
         {
         ignore_failure: false,
-        handlers: [],
-        discovery_config: Hash.new{|h,k| h[k] = Hash.new}
+        init_config: Hash.new
         }
       end
     end

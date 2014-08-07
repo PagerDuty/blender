@@ -19,6 +19,8 @@ require 'blender/log'
 require 'blender/utils/thread_pool'
 require 'blender/exceptions'
 require 'blender/scheduling_strategies/default'
+require 'blender/scheduling_strategies/per_host'
+require 'blender/scheduling_strategies/per_task'
 require 'blender/utils/thread_pool'
 require 'blender/scheduler/dsl'
 require 'blender/event_dispatcher'
@@ -30,9 +32,9 @@ module Blender
 
     include SchedulerDSL
 
-    attr_reader :metadata, :name, :registered_discoveries
-    attr_reader :scheduling_strategy, :discovery_config
-    attr_reader :events, :tasks, :default_driver, :registered_drivers
+    attr_reader :metadata, :name
+    attr_reader :scheduling_strategy, :init_config
+    attr_reader :events, :tasks
 
     def initialize(name, tasks = [], metadata = {})
       @name = name
@@ -40,11 +42,8 @@ module Blender
       @metadata = default_metadata.merge(metadata)
       @events = Blender::EventDispatcher.new
       events.register(Blender::Handlers::Doc.new)
-      @registered_discoveries = {}
-      @registered_drivers = {}
-      @default_driver = nil
       @scheduling_strategy = nil
-      @discovery_config = Hash.new{|h,k| h[k] = Hash.new}
+      @init_config = Hash.new{|h,k| h[k] = Hash.new}
     end
 
     def run

@@ -21,13 +21,10 @@ module Blender
   module Discovery
     include Blender::Utils::Refinements
 
-    def init(type, opts = {})
-      discovery_config[type].merge!(opts).freeze
-    end
 
     def build_discovery(type, opts = {})
       disco_klass = Blender::Discovery.const_get(camelcase(type.to_s).to_sym)
-      disco_opts = discovery_config[type].merge(opts)
+      disco_opts = init_config[type].merge(opts)
       disco_klass.new(disco_opts)
     end
 
