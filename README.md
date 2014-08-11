@@ -1,3 +1,4 @@
+[![Built on Travis](https://secure.travis-ci.org/PagerDuty/blender.png?branch=master)](http://travis-ci.org/PagerDuty/blender)
 # Blender
 
 Blender is a modular remote command execution framework. Blender provides few basic
@@ -320,6 +321,14 @@ both per task level as well as globally.
 
 Blender provides an event dispatchment facility (inspired from Chef), where arbitrary logic can
 be hooked into the event system (e.g. HipChat notification handlers, statsd handlers, etc) and blender will automatically invoke them during key events. As of now, events are available before and after run and per job execution. Event dispatch system is likely to get more elaborate and blender might have few common event handlers (metric, notifications etc) in near future.
+
+## Supported ruby versions
+
+Blender currently support the following Ruby implementations:
+
+* *Ruby 1.9.3*
+* *Ruby 2.1.0*
+* *Ruby 2.1.2*
 
 ## License
 [Apache 2](http://www.apache.org/licenses/LICENSE-2.0)
