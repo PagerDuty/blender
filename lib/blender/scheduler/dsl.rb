@@ -34,9 +34,11 @@ module Blender
     include Blender::Utils::Refinements
     include Blender::Discovery
 
-    def init(type, opts = {})
-      init_config[type].merge!(opts)
+    def config(type, opts = {})
+      Blender::Configuration[type].merge!(opts)
     end
+
+    alias :init :config
 
     def log_level(level)
       Blender::Log.level = level
@@ -64,7 +66,7 @@ module Blender
     def build_task(name, type)
       task_klass = Blender::Task.const_get(camelcase(type.to_s).to_sym)
       driver_klass = Blender::Driver.const_get(camelcase(type.to_s).to_sym)
-      task = task_klass.new(name, init_config: init_config[type])
+      task = task_klass.new(name)
       task.members(metadata[:members]) unless metadata[:members].empty?
       task
     end
@@ -74,7 +76,7 @@ module Blender
       klass = Blender::Driver.const_get(camelcase(type.to_s).to_sym)
       if task.driver.nil?
         opts = {}
-        opts.merge!(init_config[type]) if init_config[type]
+        opts.merge!(Blender::Configuration[type]) unless Blender::Configuration[type].empty?
         opts.merge!(task.driver_opts)
         task.use_driver(driver(type, opts))
       end

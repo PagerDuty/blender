@@ -16,6 +16,7 @@
 # limitations under the License.
 
 require 'blender/log'
+require 'blender/configuration'
 require 'blender/utils/thread_pool'
 require 'blender/exceptions'
 require 'blender/scheduling_strategies/default'
@@ -33,7 +34,7 @@ module Blender
     include SchedulerDSL
 
     attr_reader :metadata, :name
-    attr_reader :scheduling_strategy, :init_config
+    attr_reader :scheduling_strategy
     attr_reader :events, :tasks
 
     def initialize(name, tasks = [], metadata = {})
@@ -43,7 +44,6 @@ module Blender
       @events = Blender::EventDispatcher.new
       events.register(Blender::Handlers::Doc.new)
       @scheduling_strategy = nil
-      @init_config = Hash.new{|h,k| h[k] = Hash.new}
     end
 
     def run

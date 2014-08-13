@@ -46,10 +46,6 @@ module Blender
         @metadata[:ignore_failure] = value
       end
 
-      def init_config
-        @metadata[:init_config]
-      end
-
       def driver_options(opts)
         @driver_opts =  opts
       end
@@ -69,10 +65,7 @@ module Blender
       end
 
       def default_metadata
-        {
-        ignore_failure: false,
-        init_config: Hash.new
-        }
+        { ignore_failure: false }
       end
     end
   end
