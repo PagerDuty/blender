@@ -15,28 +15,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'blender/utils/refinements'
-require 'blender/configuration'
+require 'singleton'
+require 'thread'
 
 module Blender
-  module Discovery
-    include Blender::Utils::Refinements
-
-
-    def build_discovery(type, opts = {})
-      disco_klass = Blender::Discovery.const_get(camelcase(type.to_s).to_sym)
-      disco_opts = Blender::Configuration[type].merge(opts)
-      disco_klass.new(disco_opts)
+  class Configuration
+    include Singleton
+    attr_reader :data, :mutex
+    def initialize
+      @data = Hash.new{|h,k| h[k] = Hash.new}
+      @mutex = Mutex.new
     end
-
-    def search_with_config(type, opts = {})
-      options = opts.dup
-      search_opts = options.delete(:search)
-      build_discovery(type, options).search(search_opts)
+    def self.[]=(key, value)
+      instance.mutex.synchronize do
+        instance.data[key] = value
+      end
     end
-
-    def search(type, options = nil)
-      search_with_config(type, search: options)
+    def self.[](key)
+      instance.mutex.synchronize do
+        instance.data[key]
+      end
     end
   end
 end
