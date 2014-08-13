@@ -27,11 +27,17 @@ module Blender
 
     desc 'from_file ', 'Run blender job from a file'
     method_option :file,
-      default: 'Blend_it',
+      default: 'Blendfile',
       type: :string,
       aliases: '-f'
+    desc 'config_file ', 'Provide additional configuration via json file'
+    method_option :config_file,
+      default: nil,
+      type: :string,
+      aliases: '-c'
     def from_file
       des = File.read(options[:file])
+      $LOAD_PATH = File.expand_path(File.join(File.dirname('Berksfile'), 'lib'))
       Blender.blend(options[:file]) do |sch|
         sch.instance_eval(des, __FILE__, __LINE__)
       end
