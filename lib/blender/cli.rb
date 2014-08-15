@@ -37,8 +37,8 @@ module Blender
       aliases: '-c'
     def from_file
       des = File.read(options[:file])
-      $LOAD_PATH = File.expand_path(File.join(File.dirname('Berksfile'), 'lib'))
-      Blender.blend(options[:file]) do |sch|
+      $LOAD_PATH = File.expand_path(File.join(File.dirname(options[:file]), 'lib'))
+      Blender.blend(options[:file], options[:config_file]) do |sch|
         sch.instance_eval(des, __FILE__, __LINE__)
       end
     end
