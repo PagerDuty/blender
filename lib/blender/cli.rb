@@ -22,6 +22,10 @@ require 'blender/timer'
 module Blender
   class CLI < Thor
 
+    def self.exit_on_failure?
+      true
+    end
+
     default_command :from_file
     package_name 'Blender'
 

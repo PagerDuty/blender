@@ -16,12 +16,10 @@
 # limitations under the License.
 
 module Blender
-  module Exceptions
-    class ExecutionFailed < RuntimeError; end
-    class UnsupportedFeature < ArgumentError; end
-    class UnknownDriver < ArgumentError; end
-    class UnknownTask < ArgumentError; end
-    class UnknownSchedulingStrategy < ArgumentError; end
-    class MultipleDrivers < RuntimeError; end
-  end
+  class ExecutionFailed < RuntimeError; end
+  class UnsupportedFeature < ArgumentError; end
+  class UnknownDriver < ArgumentError; end
+  class UnknownTask < ArgumentError; end
+  class UnknownSchedulingStrategy < ArgumentError; end
+  class MultipleDrivers < RuntimeError; end
 end

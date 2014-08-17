@@ -27,7 +27,7 @@ module Blender
 
     # creates a new job
     # @param id [Fixnum] a numeric identifier
-    # @param default_driver [Blender::Driver::Base] a driver object
+    # @param driver [Blender::Driver::Base] a driver object
     # @patam hosts [Array] list of target hosts
     # @patam hosts [Array] list of tasks to be run against the hosts
     def initialize(id, driver, tasks, hosts)

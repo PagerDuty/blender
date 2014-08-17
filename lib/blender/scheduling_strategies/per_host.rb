@@ -24,7 +24,7 @@ module Blender
         Log.debug("Computing jobs from #{tasks.size} tasks")
         hosts_list = tasks.map(&:hosts).uniq
         if hosts_list.size != 1
-          raise 'PerHost strategy does not support scheduling tasks with different memebers'
+          raise UnsupportedFeature, 'PerHost strategy does not support scheduling tasks with different memebers'
         end
         job_id = 1
         jobs = hosts_list.first.map do |host|

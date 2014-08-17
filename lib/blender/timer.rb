@@ -45,7 +45,7 @@ module Blender
             job.run
           end
         else
-          raise "Unsupported scheduling: '#{job.schedule.first}'"
+          raise UnsupportedFeature, "Unsupported scheduling: '#{job.schedule.first}'"
         end
       end
       scheduler.join

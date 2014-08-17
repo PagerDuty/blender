@@ -39,7 +39,7 @@ module Blender
           Array(tasks).each do |task|
             cmd = run_command(task.command, session)
             if cmd.exitstatus != 0 and !task.metadata[:ignore_failure]
-              raise Exceptions::ExecutionFailed, cmd.stderr
+              raise ExecutionFailed, cmd.stderr
             end
           end
           session.loop

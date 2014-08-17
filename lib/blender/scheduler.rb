@@ -49,7 +49,6 @@ module Blender
     def run
       @scheduling_strategy ||= SchedulingStrategy::Default.new
       events.run_started(self)
-      @default_driver ||= driver(:shell_out, events: events)
       events.job_computation_started(scheduling_strategy)
       jobs = scheduling_strategy.compute_jobs(@tasks)
       events.job_computation_finished(self, jobs)
@@ -60,6 +59,9 @@ module Blender
       end
       events.run_finished(self)
       jobs
+    rescue StandardError => e
+      events.run_failed(self)
+      raise e
     end
 
     def serial_run(jobs)
@@ -83,17 +85,15 @@ module Blender
 
     def run_job(job)
       events.job_started(job)
-      begin
-        Log.debug("Running job #{job.name}")
-        job.run
-        events.job_finished(job)
-      rescue StandardError => e
-        events.job_errored(job, e)
-        if metadata[:ignore_failure]
-          Log.warn("Exception: #{e.inspect} was suppressed, ignoring failure")
-        else
-          raise e
-        end
+      Log.debug("Running job #{job.name}")
+      job.run
+      events.job_finished(job)
+    rescue StandardError => e
+      events.job_failed(job, e)
+      if metadata[:ignore_failure]
+        Log.warn("Exception: #{e.inspect} was suppressed, ignoring failure")
+      else
+        raise e
       end
     end
 

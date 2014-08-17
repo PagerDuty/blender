@@ -39,6 +39,13 @@ module Blender
         ui.puts_green("Run finished (#{delta} s)")
       end
 
+      def run_failed(scheduler, e)
+        delta = ( Time.now - @start_time)
+        ui.puts_red("Run failed (#{delta} s)")
+        ui.puts_red("Error :#{e.class} Message: #{e.message}")
+        ui.puts_red("Backtrace :#{e.backtrace.join("\n")}")
+      end
+
       def job_started(job)
       end
 
@@ -46,12 +53,8 @@ module Blender
         ui.puts("  #{job.to_s} finished")
       end
 
-      def job_errored(job, e)
-        ui.puts_red("  #{job.to_s} errored")
-      end
-
-      def command_errored(command)
-        ui.puts_red("   Command#{command.to_s} errored")
+      def job_failed(job, e)
+        ui.puts_red("  #{job.to_s} failed")
       end
 
       def job_computation_started(strategy)
@@ -62,10 +65,6 @@ module Blender
       def job_computation_finished(scheduler, jobs)
         delta = Time.now - @compute_start_time
         ui.puts(" #{jobs.size} job(s) computed using '#{@strategy}' strategy")
-      end
-
-      def skipping_for_why_run(desc)
-        ui.puts_green(desc)
       end
     end
   end

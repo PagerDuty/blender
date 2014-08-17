@@ -77,7 +77,7 @@ describe Blender::Scheduler do
       it '#should raise error for non-existent strategy' do
         expect do
           scheduler.strategy(:foo)
-        end.to raise_error(Blender::Exceptions::UnknownSchedulingStrategy)
+        end.to raise_error(Blender::UnknownSchedulingStrategy)
       end
       it '#get default' do
         expect(scheduler.strategy(:default)).to be_kind_of(Blender::SchedulingStrategy::Default)

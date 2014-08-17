@@ -28,7 +28,7 @@ module Blender
             cmd = run_command(task.command, host)
             events.command_finished(task.command, cmd)
             if cmd.exitstatus != 0 and !task.metadata[:ignore_failure]
-              raise Exceptions::ExecutionFailed, cmd.stderr
+              raise ExecutionFailed, cmd.stderr
             end
           end
         end
