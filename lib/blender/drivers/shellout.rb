@@ -23,11 +23,9 @@ module Blender
       def execute(tasks, hosts)
         verify_local_host!(hosts)
         tasks.each do |task|
-          events.command_started(task.command)
           cmd = run_command(task.command)
-          events.command_finished(task.command, cmd)
           if cmd.exitstatus != 0 and !task.metadata[:ignore_failure]
-            raise Exceptions::ExecutionFailed, cmd.stderr
+            raise ExecutionFailed, cmd.stderr
           end
         end
       end
@@ -43,7 +41,7 @@ module Blender
       end
       def verify_local_host!(hosts)
         unless hosts.all?{|h|h == 'localhost'}
-          raise Exceptions::UnsupportedFeature, 'This driver does not support any host other than localhost'
+          raise UnsupportedFeature, 'This driver does not support any host other than localhost'
         end
       end
     end

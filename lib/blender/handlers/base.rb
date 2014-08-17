@@ -22,23 +22,17 @@ module Blender
       end
       def run_finished(scheduler)
       end
+      def run_failed(scheduler, e)
+      end
       def job_computation_started(strategy)
       end
       def job_computation_finished(strategy, jobs)
-      end
-      def command_started(command)
-      end
-      def command_finished(command, status)
-      end
-      def command_errored(command)
       end
       def job_started(job)
       end
       def job_finished(job)
       end
-      def job_errored(job, error)
-      end
-      def skipping_for_why_run(desc)
+      def job_failed(job, error)
       end
     end
   end

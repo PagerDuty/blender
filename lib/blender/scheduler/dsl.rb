@@ -55,7 +55,7 @@ module Blender
       begin
         Blender::Driver.const_get(klass_name).new(config)
       rescue NameError => e
-        raise Exceptions::UnknownDriver, e.message
+        raise UnknownDriver, e.message
       end
     end
 
@@ -108,7 +108,7 @@ module Blender
         @scheduling_strategy = Blender::SchedulingStrategy.const_get(klass_name).new
         @scheduling_strategy.freeze
       rescue NameError => e
-        raise Exceptions::UnknownSchedulingStrategy, e.message
+        raise UnknownSchedulingStrategy, e.message
       end
     end
 
