@@ -60,7 +60,7 @@ module Blender
       events.run_finished(self)
       jobs
     rescue StandardError => e
-      events.run_failed(self)
+      events.run_failed(self, e)
       raise e
     end
 
