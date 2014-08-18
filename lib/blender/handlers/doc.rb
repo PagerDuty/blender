@@ -16,6 +16,7 @@
 # limitations under the License.
 
 require 'blender/utils/ui'
+require 'blender/configuration'
 
 module Blender
   module Handlers
@@ -32,6 +33,7 @@ module Blender
         @task_id = 0
         @job_id = 1
         ui.puts_green("Run[#{scheduler.name}] started")
+        ui.puts_green('Running in No-Op mode, driver execution will be skipped') if Configuration[:noop]
       end
 
       def run_finished(scheduler)
@@ -47,10 +49,10 @@ module Blender
       end
 
       def job_started(job)
+        ui.puts("  #{job.to_s} started")
       end
 
       def job_finished(job)
-        ui.puts("  #{job.to_s} finished")
       end
 
       def job_failed(job, e)

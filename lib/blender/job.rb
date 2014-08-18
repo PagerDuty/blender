@@ -16,6 +16,9 @@
 # limitations under the License.
 
 require 'blender/exceptions'
+require 'blender/log'
+require 'blender/configuration'
+
 module Blender
   # A job represent encapsulates an array of tasks to be performed
   # against an array of hosts. Jobs are created by scheduling strategies,
@@ -38,7 +41,7 @@ module Blender
     end
 
     def run
-      driver.execute(tasks, hosts)
+      driver.execute(tasks, hosts) unless Configuration[:noop]
     end
 
     def to_s
