@@ -51,7 +51,7 @@ module Blender
 
     def driver(type, opts = {})
       klass_name = camelcase(type.to_s).to_sym
-      config = opts.merge(events: events)
+      config = symbolize(opts.merge(events: events))
       yield config if block_given?
       begin
         Blender::Driver.const_get(klass_name).new(config)

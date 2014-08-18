@@ -22,11 +22,10 @@ module Blender
   module Discovery
     include Blender::Utils::Refinements
 
-
     def build_discovery(type, opts = {})
       disco_klass = Blender::Discovery.const_get(camelcase(type.to_s).to_sym)
       disco_opts = Blender::Configuration[type].merge(opts)
-      disco_klass.new(disco_opts)
+      disco_klass.new(symbolize(disco_opts))
     end
 
     def search_with_config(type, opts = {})

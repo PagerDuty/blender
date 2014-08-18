@@ -32,6 +32,14 @@ module Blender
         end
         rname
       end
+
+      def symbolize(hash)
+        res = {}
+        hash.keys.each do |k|
+          res[k.to_sym] = hash[k]
+        end
+        res
+      end
     end
   end
 end
