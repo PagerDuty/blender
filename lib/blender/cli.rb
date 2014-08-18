@@ -35,17 +35,17 @@ module Blender
       type: :string,
       aliases: '-f'
 
-    desc 'config_file ', 'Provide additional configuration via json file'
     method_option :config_file,
       default: nil,
       type: :string,
-      aliases: '-c'
+      aliases: '-c',
+      banner: 'Provide additional configuration via json file'
 
-    desc 'noop', 'No-op mode, run blender without executing jobs'
     method_option :noop,
       default: false,
       type: :boolean,
-      aliases: '-n'
+      aliases: '-n',
+      banner: 'No-op mode, run blender without executing jobs'
 
     def from_file
       Configuration[:noop] = options[:noop]
