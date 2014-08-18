@@ -34,12 +34,21 @@ module Blender
       default: 'Blendfile',
       type: :string,
       aliases: '-f'
+
     desc 'config_file ', 'Provide additional configuration via json file'
     method_option :config_file,
       default: nil,
       type: :string,
       aliases: '-c'
+
+    desc 'noop', 'No-op mode, run blender without executing jobs'
+    method_option :noop,
+      default: false,
+      type: :boolean,
+      aliases: '-n'
+
     def from_file
+      Configuration[:noop] = options[:noop]
       des = File.read(options[:file])
       $LOAD_PATH = File.expand_path(File.join(File.dirname(options[:file]), 'lib'))
       Blender.blend(options[:file], options[:config_file]) do |sch|
