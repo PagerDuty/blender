@@ -54,7 +54,7 @@ module Blender
     end
     if data['load_paths']
       data['load_paths'].each do |path|
-        $LOAD_PATH << path
+        $LOAD_PATH.unshift(path)
       end
     end
     if data['scheduler']

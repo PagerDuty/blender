@@ -50,7 +50,7 @@ module Blender
     def from_file
       Configuration[:noop] = options[:noop]
       des = File.read(options[:file])
-      $LOAD_PATH = File.expand_path(File.join(File.dirname(options[:file]), 'lib'))
+      $LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(options[:file]), 'lib')))
       Blender.blend(options[:file], options[:config_file]) do |sch|
         sch.instance_eval(des, __FILE__, __LINE__)
       end
