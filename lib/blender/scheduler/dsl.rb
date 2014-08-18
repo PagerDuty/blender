@@ -28,6 +28,7 @@ require 'blender/drivers/ssh_multi'
 require 'blender/drivers/shellout'
 require 'blender/drivers/ruby'
 require 'blender/discovery'
+require 'blender/handlers/base'
 
 module Blender
   module SchedulerDSL
@@ -50,7 +51,7 @@ module Blender
 
     def driver(type, opts = {})
       klass_name = camelcase(type.to_s).to_sym
-      config = opts.merge(events: @events)
+      config = opts.merge(events: events)
       yield config if block_given?
       begin
         Blender::Driver.const_get(klass_name).new(config)
@@ -59,8 +60,20 @@ module Blender
       end
     end
 
-    def register_handler(handler)
-      @events.register(handler)
+    def add_handler(handler)
+      events.register(handler)
+    end
+
+    alias :register_handler :add_handler
+
+    def on(event_type, &block)
+      add_handler(
+        Class.new(Handlers::Base) do
+          define_method(event_type) do |*args|
+            block.call(args)
+          end
+        end.new
+      )
     end
 
     def build_task(name, type)

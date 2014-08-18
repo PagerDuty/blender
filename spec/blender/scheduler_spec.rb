@@ -51,6 +51,18 @@ describe Blender::Scheduler do
         expect(task.driver).to be_kind_of(Blender::Driver::Ssh)
       end
     end
+    describe '#on' do
+      it 'should invoke custom block on specific events' do
+        test = 1
+        Blender.blend('do it') do |sched|
+          sched.on :run_finished do |x|
+            test = 2
+          end
+          sched.task 'ls -alh'
+        end
+        expect(test).to eq(2)
+      end
+    end
     describe '#ruby_task' do
       before do
         scheduler.ruby_task('test') do |t|
