@@ -42,6 +42,7 @@ module Blender
       scheduler.task(name)
     end
     scheduler.run
+    scheduler
   end
 
   def self.configure(file)
