@@ -7,4 +7,4 @@ rvm:
 branches:
   only:
     - master
-script: "bundle exec rake spec"
+script: "bundle exec rake spec rspec"
