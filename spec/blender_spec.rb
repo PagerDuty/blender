@@ -21,7 +21,7 @@ describe Blender do
   describe '#blend' do
     it 'should invoke a local command is no block is given' do
       cmd = double(Mixlib::ShellOut, exitstatus: 0).as_null_object
-      expect(Mixlib::ShellOut).to receive(:new).with('foo').and_return(cmd)
+      expect(Mixlib::ShellOut).to receive(:new).with('foo', {}).and_return(cmd)
       described_class.blend('foo')
     end
     it 'should yield a scheduler object when block passed' do

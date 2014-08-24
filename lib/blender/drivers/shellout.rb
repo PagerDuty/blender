@@ -20,6 +20,18 @@ require 'mixlib/shellout'
 module Blender
   module Driver
     class ShellOut < Base
+
+      def initialize(config = {})
+        @options = {}
+        cfg = config.dup
+        [:user, :group, :cwd, :umask, :returns, :environment, :timeout].each do |key|
+          if cfg.key?(key)
+            @options[key] = cfg.delete(key)
+          end
+        end
+        super(cfg)
+      end
+
       def execute(tasks, hosts)
         verify_local_host!(hosts)
         tasks.each do |task|
@@ -29,8 +41,9 @@ module Blender
           end
         end
       end
+
       def run_command(command)
-        cmd = Mixlib::ShellOut.new(command)
+        cmd = Mixlib::ShellOut.new(command, @options)
         begin
           cmd.live_stream = stdout
           cmd.run_command
@@ -39,6 +52,7 @@ module Blender
           ExecOutput.new(-1, '', e.message)
         end
       end
+
       def verify_local_host!(hosts)
         unless hosts.all?{|h|h == 'localhost'}
           raise UnsupportedFeature, 'This driver does not support any host other than localhost'
