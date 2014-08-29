@@ -27,11 +27,13 @@ require 'blender/scheduler/dsl'
 require 'blender/event_dispatcher'
 require 'blender/handlers/doc'
 require 'blender/tasks/base'
+require 'blender/lock'
 
 module Blender
   class Scheduler
 
     include SchedulerDSL
+    include Lock
 
     attr_reader :metadata, :name
     attr_reader :scheduling_strategy
@@ -52,13 +54,15 @@ module Blender
       events.job_computation_started(scheduling_strategy)
       jobs = scheduling_strategy.compute_jobs(@tasks)
       events.job_computation_finished(self, jobs)
-      if metadata[:concurrency] > 1
-        concurrent_run(jobs)
-      else
-        serial_run(jobs)
+      lock('path' => File.join('/tmp', name)) do
+        if metadata[:concurrency] > 1
+          concurrent_run(jobs)
+        else
+          serial_run(jobs)
+        end
+        events.run_finished(self)
+        jobs
       end
-      events.run_finished(self)
-      jobs
     rescue StandardError => e
       events.run_failed(self, e)
       raise e

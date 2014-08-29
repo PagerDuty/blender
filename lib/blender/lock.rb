@@ -15,28 +15,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'singleton'
-require 'thread'
-
 module Blender
-  class Configuration
-    include Singleton
-    attr_reader :data, :mutex
-    def initialize
-      @data = Hash.new{|h,k| h[k] = Hash.new}
-      @data[:noop] = false
-      @data[:lock]['driver'] = 'flock'
-      @data[:lock]['options'] = {}
-      @mutex = Mutex.new
-    end
-    def self.[]=(key, value)
-      instance.mutex.synchronize do
-        instance.data[key] = value
+  module Lock
+    include  Blender::Utils::Refinements
+
+    class Flock
+      def initialize(options)
+        @path = options['path']
+      end
+      def with_lock
+        File.open(@path, File::CREAT, 0644) do |f|
+          f.flock(File::LOCK_EX)
+          yield if block_given?
+        end
+        File.unlink(@path)
       end
     end
-    def self.[](key)
-      instance.mutex.synchronize do
-        instance.data[key]
+
+    def lock(opts = {})
+      lock_klass = Lock.const_get(camelcase(Configuration[:lock]['driver']).to_sym)
+      options = Configuration[:lock]['options'].merge(opts)
+      lock_klass.new(options).with_lock do
+        yield if block_given?
       end
     end
   end
