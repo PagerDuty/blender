@@ -15,20 +15,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'fcntl'
+require 'blender/exceptions'
+
 module Blender
   module Lock
     include  Blender::Utils::Refinements
 
     class Flock
+
       def initialize(options)
         @path = options['path']
       end
+
       def with_lock
         File.open(@path, File::CREAT, 0644) do |f|
-          f.flock(File::LOCK_EX)
-          yield if block_given?
+          f.fcntl( Fcntl::F_SETFD, f.fcntl(Fcntl::F_GETFD, 0) | Fcntl::FD_CLOEXEC )
+          if f.flock(File::LOCK_NB | File::LOCK_EX) == 0
+            begin
+              yield if block_given?
+            rescue StandardError => e
+              raise e
+            ensure
+              f.flock(File::LOCK_UN)
+              f.close
+              File.unlink(@path)
+            end
+          else
+            raise LockAcquisitionError, 'Unable to lock using flock'
+          end
         end
-        File.unlink(@path)
       end
     end
 

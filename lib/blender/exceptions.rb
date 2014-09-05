@@ -22,4 +22,5 @@ module Blender
   class UnknownTask < ArgumentError; end
   class UnknownSchedulingStrategy < ArgumentError; end
   class MultipleDrivers < RuntimeError; end
+  class LockAcquisitionError < RuntimeError; end
 end

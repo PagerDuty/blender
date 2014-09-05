@@ -1,6 +1,4 @@
 require 'spec_helper'
-require 'timeout'
-require 'thread'
 
 Thread.abort_on_exception = true
 
@@ -15,27 +13,32 @@ describe Blender::Lock do
     s1.members(['localhost'])
     s1.ruby_task('date') do
       execute do |h|
+        puts "s1 start #{Time.now}"
         sleep 5
+        puts "s1 finish #{Time.now}"
       end
     end
 
     s2 = Blender::Scheduler.new('test-1')
+    s2.config(:ruby, stdout: $stdout)
     s2.members(['localhost'])
+
     s2.ruby_task('date') do
       execute do
-        puts "Nothing"
+        puts Dir['/tmp/*'].inspect
+        puts "s2 finish #{Time.now}"
       end
     end
-    t = Thread.new do
+
+    pid = fork do
       s1.run
     end
 
     expect do
-      Timeout.timeout(2) do
-        s2.run
-      end
-    end.to raise_error(Timeout::Error)
-    t.join
+      s2.run
+    end.to raise_error(Blender::LockAcquisitionError)
+    status = Process.wait2 pid
+    expect(status.last.exitstatus).to be_zero
   end
 
   it 'should allow two blender run with different name to run at the same time' do
@@ -55,15 +58,14 @@ describe Blender::Lock do
       end
     end
 
-    t = Thread.new do
+    pid = fork do
       s1.run
     end
 
     expect do
-      Timeout.timeout(2) do
-        s2.run
-      end
+      s2.run
     end.not_to raise_error
-    t.join
+    status = Process.wait2 pid
+    expect(status.last.exitstatus).to be_zero
   end
 end
