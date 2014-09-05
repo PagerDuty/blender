@@ -25,6 +25,8 @@ module Blender
     def initialize
       @data = Hash.new{|h,k| h[k] = Hash.new}
       @data[:noop] = false
+      @data[:lock]['driver'] = 'flock'
+      @data[:lock]['options'] = {}
       @mutex = Mutex.new
     end
     def self.[]=(key, value)

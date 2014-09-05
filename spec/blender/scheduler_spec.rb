@@ -8,8 +8,8 @@ describe Blender::Scheduler do
     subject(:task){scheduler.tasks.first}
     it '#ask' do
       tui = double(HighLine)
+      allow(HighLine).to receive(:new).and_return(tui)
       expect(tui).to receive(:ask).with('foo')
-      expect(HighLine).to receive(:new).and_return(tui)
       scheduler.ask('foo')
     end
     it '#register_handler' do
