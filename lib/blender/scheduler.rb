@@ -54,7 +54,7 @@ module Blender
       events.job_computation_started(scheduling_strategy)
       jobs = scheduling_strategy.compute_jobs(@tasks)
       events.job_computation_finished(self, jobs)
-      lock('path' => File.join('/tmp', name)) do
+      lock do
         if metadata[:concurrency] > 1
           concurrent_run(jobs)
         else

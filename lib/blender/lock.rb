@@ -24,15 +24,17 @@ module Blender
 
     class Flock
 
-      def initialize(options)
-        @path = options['path']
+      def initialize(name, options)
+        @path = options['path'] || File.join('/tmp', name)
+        @job_name = name
       end
 
       def with_lock
-        File.open(@path, File::CREAT, 0644) do |f|
+        File.open(@path, File::CREAT|File::RDWR, 0644) do |f|
           f.fcntl( Fcntl::F_SETFD, f.fcntl(Fcntl::F_GETFD, 0) | Fcntl::FD_CLOEXEC )
           if f.flock(File::LOCK_NB | File::LOCK_EX) == 0
             begin
+              f.write({job: @job_name, pid: Process.pid }.inspect)
               yield if block_given?
             rescue StandardError => e
               raise e
@@ -49,9 +51,13 @@ module Blender
     end
 
     def lock(opts = {})
-      lock_klass = Lock.const_get(camelcase(Configuration[:lock]['driver']).to_sym)
-      options = Configuration[:lock]['options'].merge(opts)
-      lock_klass.new(options).with_lock do
+      if Configuration[:lock]['driver']
+        lock_klass = Lock.const_get(camelcase(Configuration[:lock]['driver']).to_sym)
+        options = Configuration[:lock]['options'].merge(opts)
+        lock_klass.new(name, options).with_lock do
+          yield if block_given?
+        end
+      else
         yield if block_given?
       end
     end
