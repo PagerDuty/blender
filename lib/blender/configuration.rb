@@ -21,19 +21,21 @@ require 'thread'
 module Blender
   class Configuration
     include Singleton
+
     attr_reader :data, :mutex
+
     def initialize
       @data = Hash.new{|h,k| h[k] = Hash.new}
       @data[:noop] = false
-      @data[:lock]['driver'] = 'flock'
-      @data[:lock]['options'] = {}
       @mutex = Mutex.new
     end
+
     def self.[]=(key, value)
       instance.mutex.synchronize do
         instance.data[key] = value
       end
     end
+
     def self.[](key)
       instance.mutex.synchronize do
         instance.data[key]

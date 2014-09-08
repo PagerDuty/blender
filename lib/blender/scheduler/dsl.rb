@@ -29,6 +29,7 @@ require 'blender/drivers/shellout'
 require 'blender/drivers/ruby'
 require 'blender/discovery'
 require 'blender/handlers/base'
+require 'blender/lock/flock'
 
 module Blender
   module SchedulerDSL
@@ -135,6 +136,23 @@ module Blender
 
     def members(hosts)
       @metadata[:members] = hosts
+    end
+
+    def lock_options(driver, opts = {})
+      @lock_properties[:driver] = driver
+      @lock_properties[:driver_options].merge!(opts.dup)
+    end
+
+    def lock(opts = {})
+      options = lock_properties.dup.merge(opts)
+      if options[:driver]
+        lock_klass = Lock.const_get(camelcase(options[:driver]).to_sym)
+        lock_klass.new(name, options[:driver_options]).with_lock do
+          yield if block_given?
+        end
+      else
+        yield if block_given?
+      end
     end
 
     alias_method :task, :shell_task

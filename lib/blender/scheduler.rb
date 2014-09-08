@@ -27,7 +27,6 @@ require 'blender/scheduler/dsl'
 require 'blender/event_dispatcher'
 require 'blender/handlers/doc'
 require 'blender/tasks/base'
-require 'blender/lock'
 
 module Blender
   class Scheduler
@@ -38,6 +37,7 @@ module Blender
     attr_reader :metadata, :name
     attr_reader :scheduling_strategy
     attr_reader :events, :tasks
+    attr_reader :lock_properties
 
     def initialize(name, tasks = [], metadata = {})
       @name = name
@@ -46,6 +46,7 @@ module Blender
       @events = Blender::EventDispatcher.new
       events.register(Blender::Handlers::Doc.new)
       @scheduling_strategy = nil
+      @lock_properties = {driver: 'flock', driver_options: {}}
     end
 
     def run
