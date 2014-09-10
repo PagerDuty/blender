@@ -4,12 +4,12 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'blender/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'blender'
+  spec.name          = 'pd-blender'
   spec.version       = Blender::VERSION
   spec.authors       = ['Ranjib Dey']
   spec.email         = ['ranjib@pagerduty.com']
-  spec.summary       = %q{Execute jobs acorss a set of servers using ssh or serf}
-  spec.description   = %q{Discover and execute ordered jobs across your fleet}
+  spec.summary       = %q{A modular orchestration engine}
+  spec.description   = %q{Discover hosts, run tasks against them and control their execution order}
   spec.homepage      = 'http://github.com/PagerDuty/blender'
   spec.license       = 'Apache 2'
   spec.bindir        = 'bin'
