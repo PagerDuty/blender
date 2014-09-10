@@ -4,6 +4,7 @@ SimpleCov.start do
   add_filter '/spec/'
   add_filter '.bundle'
 end
+
 require 'rspec'
 require 'rspec/mocks'
 require 'rspec/expectations'

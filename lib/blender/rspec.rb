@@ -53,10 +53,10 @@ module Blender
 
     def noop_scheduler_from_file(file)
       Blender::Configuration[:noop] = true
-      Blender::Configuration[:lock]['driver'] = nil
       des = File.read(file)
       $LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(file), 'lib')))
       Blender.blend(file) do |sch|
+        sch.lock_options(nil)
         sch.instance_eval(des, __FILE__, __LINE__)
       end
     end
