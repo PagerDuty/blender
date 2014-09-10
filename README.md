@@ -82,7 +82,7 @@ Blender is composed of two components:
   script can have multiple tasks. Tasks are executed using drivers. Tasks can declare their
   target hosts.
 
-  * **Scheduling stratgy** - Determines the order of task execution across the hosts. 
+  * **Scheduling strategy** - Determines the order of task execution across the hosts. 
   Every blender scripts has one and only one scheduling strategy. Scheduling strategies
   uses the task list as input and produces a list of jobs, to be executed using drivers.
 
@@ -296,7 +296,7 @@ Following are some examples:
   end
   ```
 
-## Invoking blender periodially with Rufus schedler
+## Invoking blender periodially with Rufus scheduler
 
 Blender is designed to be used as a standalone script that can be invoked on-demand or
 consumed as a library, i.e. workflows are written in plain Ruby objects and invoked
