@@ -63,6 +63,17 @@ commands over ssh, serf handlers etc) which can ease automating large cluster
 maintenance, multi stage provisioning, establishing cross server feedback
 loops etc.
 
+## Installation
+
+Blender is published as `pd-blender` in rubygems. And you can install it as:
+```sh
+gem install pd-blender
+```
+Or declare it as a dependency in your Gemfile, if you are using bundler.
+```ruby
+gem 'pd-blender'
+```
+
 ## Concepts
 
 Blender is composed of two components:
