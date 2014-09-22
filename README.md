@@ -333,14 +333,14 @@ both per task level as well as globally.
 Blender provides an event dispatchment facility (inspired from Chef), where arbitrary logic can
 be hooked into the event system (e.g. HipChat notification handlers, statsd handlers, etc) and blender
 will automatically invoke them during key events. As of now, events are available before and after run
-and per job execution. Event dispatch system is likely to get more elaborate and blender might havei
+and per job execution. Event dispatch system is likely to get more elaborate and blender might have
 few common event handlers (metric, notifications etc) in near future.
 
 
 ## Ancillary projects
 
 Blender has a few ancillary projects for integration with other systems, following are few of them:
-- Zookeepr based locking for distributed blender deployments [blender-zk](https://github.com/PagerDuty/blender-zk)
+- Zookeeper based locking for distributed blender deployments [blender-zk](https://github.com/PagerDuty/blender-zk)
 - Serf based host discovery and command dispatch [blender-serf](https://github.com/PagerDuty/blender-serf)
 - Chef based host discovery [blender-chef](https://github.com/PagerDuty/blender-chef)
 
