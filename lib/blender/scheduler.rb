@@ -46,7 +46,7 @@ module Blender
       @events = Blender::EventDispatcher.new
       events.register(Blender::Handlers::Doc.new)
       @scheduling_strategy = nil
-      @lock_properties = {driver: 'flock', driver_options: {}}
+      @lock_properties = {driver: nil, driver_options: {}}
     end
 
     def run
