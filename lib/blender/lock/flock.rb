@@ -26,7 +26,6 @@ module Blender
         @path = options['path'] || File.join('/tmp', name)
         @timeout = options[:timeout] || 0
         @job_name = name
-        @lock_fd = nil
       end
 
       def acquire
@@ -44,7 +43,6 @@ module Blender
       end
 
       def release
-        @lock_fd
         @lock_fd.flock(File::LOCK_UN)
         @lock_fd.close
       end
@@ -54,10 +52,10 @@ module Blender
         yield if block_given?
       rescue Timeout::Error => e
         raise LockAcquisitionError, 'Timeout while waiting for lock acquisition'
-      rescue LockAcquisitionError => e
-        raise e
       ensure
-        release
+        if @lock_fd
+          release
+        end
       end
     end
   end
