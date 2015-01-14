@@ -19,3 +19,5 @@ RuboCop::RakeTask.new(:rubocop) do |t|
   t.patterns = %w{Rakefile Gemfile lib/**/*.rb}
   t.fail_on_error = true
 end
+
+task default: [:spec, :rubocop]
