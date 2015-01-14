@@ -45,7 +45,6 @@ module Blender
       def color(string, *colors)
         @highline.color(string, *colors)
       end
-      
     end
   end
 end
