@@ -25,9 +25,7 @@ module Blender
         @options = {}
         cfg = config.dup
         [:user, :group, :cwd, :umask, :returns, :environment, :timeout].each do |key|
-          if cfg.key?(key)
-            @options[key] = cfg.delete(key)
-          end
+          @options[key] = cfg.delete(key) if cfg.key?(key)
         end
         super(cfg)
       end

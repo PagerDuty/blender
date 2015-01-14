@@ -33,9 +33,7 @@ module Blender
   # @return [void]
   def self.blend(name, config_file = nil)
     scheduler = Scheduler.new(name)
-    if config_file
-      configure(config_file)
-    end
+    configure(config_file) if config_file
     if block_given?
       yield scheduler
     else
@@ -47,12 +45,10 @@ module Blender
 
   def self.configure(file)
     data = JSON.parse(File.read(file))
-    if data['log_level']
-      Blender::Log.level = data['log_level'].to_sym
-    end
-    if data['log_file']
-      Blender::Log.init(data['log_file'])
-    end
+
+    Blender::Log.level = data['log_level'].to_sym if data['log_level']
+    Blender::Log.init(data['log_file']) if data['log_file']
+
     if data['load_paths']
       data['load_paths'].each do |path|
         $LOAD_PATH.unshift(path)

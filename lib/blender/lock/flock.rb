@@ -53,9 +53,7 @@ module Blender
       rescue Timeout::Error => e
         raise LockAcquisitionError, 'Timeout while waiting for lock acquisition'
       ensure
-        if @lock_fd
-          release
-        end
+        release if @lock_fd
       end
     end
   end
