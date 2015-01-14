@@ -24,6 +24,7 @@ module Blender
         @mutex = Mutex.new
         @highline = HighLine.new
       end
+
       def puts(string)
         @mutex.synchronize do
           $stdout.puts(string)

@@ -20,18 +20,25 @@ module Blender
     class Base
       def run_started(scheduler)
       end
+
       def run_finished(scheduler)
       end
+
       def run_failed(scheduler, e)
       end
+
       def job_computation_started(strategy)
       end
+
       def job_computation_finished(strategy, jobs)
       end
+
       def job_started(job)
       end
+
       def job_finished(job)
       end
+
       def job_failed(job, error)
       end
     end

@@ -25,6 +25,7 @@ module Blender
         @type = type
         @opts = opts
       end
+
       def and_return(value)
         @return_value = value
       end
@@ -35,6 +36,7 @@ module Blender
       def initialize
         @data = []
       end
+
       def self.add(type, opts)
         obj = SearchStub.new(type, opts)
         instance.data << obj
