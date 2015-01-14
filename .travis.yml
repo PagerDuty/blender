@@ -1,9 +1,14 @@
+language: ruby
+cache:
+  directories:
+    - .bundle
 before_install:
   - bundle install --path .bundle
 rvm:
   - 1.9.3
   - 2.1.0
   - 2.1.2
+  - 2.1
 branches:
   only:
     - master
