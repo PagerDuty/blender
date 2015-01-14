@@ -8,15 +8,15 @@ YARD::Rake::YardocTask.new do |t|
 end
 
 RSpec::Core::RakeTask.new(:spec) do |t|
-  t.pattern = %w{spec/**/*_spec.rb}
+  t.pattern = %w(spec/**/*_spec.rb)
 end
 
 RSpec::Core::RakeTask.new(:rspec) do |t|
-  t.pattern = %w{spec/**/*_rspec.rb}
+  t.pattern = %w(spec/**/*_rspec.rb)
 end
 
 RuboCop::RakeTask.new(:rubocop) do |t|
-  t.patterns = %w{Rakefile Gemfile lib/**/*.rb}
+  t.patterns = %w(Rakefile Gemfile lib/**/*.rb)
   t.fail_on_error = true
 end
 
