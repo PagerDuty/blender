@@ -30,7 +30,6 @@ require 'blender/tasks/base'
 
 module Blender
   class Scheduler
-
     include SchedulerDSL
     include Lock
 

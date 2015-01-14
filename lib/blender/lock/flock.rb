@@ -21,7 +21,6 @@ require 'fcntl'
 module Blender
   module Lock
     class Flock
-
       def initialize(name, options)
         @path = options['path'] || File.join('/tmp', name)
         @timeout = options[:timeout] || 0

@@ -21,7 +21,6 @@ require 'blender/configuration'
 module Blender
   module Handlers
     class Doc < Base
-
       attr_reader :ui
 
       def initialize

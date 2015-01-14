@@ -20,7 +20,6 @@ require 'blender/drivers/base'
 module Blender
   module Driver
     class Ruby < Base
-
       def execute(tasks, hosts)
         tasks.each do |task|
           hosts.each do |host|

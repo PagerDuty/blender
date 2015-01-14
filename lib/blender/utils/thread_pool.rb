@@ -20,7 +20,6 @@ require 'blender/log'
 module Blender
   module Utils
     class ThreadPool
-
       def initialize(size)
         @size = size
         @queue = Queue.new

@@ -22,7 +22,6 @@ require 'blender/drivers/base'
 module Blender
   module Driver
     class Ssh < Base
-
       attr_reader :user
 
       def initialize(config = {})

@@ -20,7 +20,6 @@ require 'mixlib/shellout'
 module Blender
   module Driver
     class ShellOut < Base
-
       def initialize(config = {})
         @options = {}
         cfg = config.dup
