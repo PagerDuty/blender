@@ -25,7 +25,7 @@ module Blender
     attr_reader :data, :mutex
 
     def initialize
-      @data = Hash.new{|h,k| h[k] = Hash.new}
+      @data = Hash.new{|h, k| h[k] = Hash.new}
       @data[:noop] = false
       @mutex = Mutex.new
     end

@@ -22,7 +22,6 @@ require 'blender/drivers/ssh'
 module Blender
   module Driver
     class SshMulti < Ssh
-
       def execute(tasks, hosts)
         Log.debug("SSH execution tasks [#{tasks.size}]")
         Log.debug("SSH on hosts [#{hosts.join("\n")}]")
@@ -49,9 +48,7 @@ module Blender
             end
             ch.on_data do |c, data|
               stdout << data
-              if data =~ /^blender sudo password: /
-                c.send_data("#{password}\n")
-              end
+              c.send_data("#{password}\n") if data =~ /^blender sudo password: /
             end
             ch.on_extended_data do |c, type, data|
               stderr << data

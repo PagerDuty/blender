@@ -24,6 +24,7 @@ module Blender
         @mutex = Mutex.new
         @highline = HighLine.new
       end
+
       def puts(string)
         @mutex.synchronize do
           $stdout.puts(string)
@@ -45,7 +46,6 @@ module Blender
       def color(string, *colors)
         @highline.color(string, *colors)
       end
-      
     end
   end
 end

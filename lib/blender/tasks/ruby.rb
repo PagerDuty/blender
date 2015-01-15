@@ -20,7 +20,6 @@ require 'blender/tasks/base'
 module Blender
   module Task
     class Ruby < Blender::Task::Base
-
       attr_reader :code_block
 
       def execute(&block)

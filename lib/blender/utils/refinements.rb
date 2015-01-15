@@ -19,7 +19,7 @@ module Blender
     module Refinements
       def camelcase(string)
         str = string.dup
-        str.gsub!(/[^A-Za-z0-9_]/,'_')
+        str.gsub!(/[^A-Za-z0-9_]/, '_')
         rname = nil
         regexp = %r{^(.+?)(_(.+))?$}
         mn = str.match(regexp)

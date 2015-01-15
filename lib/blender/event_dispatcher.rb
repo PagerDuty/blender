@@ -40,6 +40,6 @@ module Blender
 
    (Handlers::Base.instance_methods - Object.instance_methods).each do |method_name|
       def_forwarding_method(method_name)
-    end                                           
+    end
   end
 end

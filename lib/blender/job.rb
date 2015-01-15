@@ -25,7 +25,6 @@ module Blender
   # and passed to underlying drivers for execution
   # Tasks within a single job must has exactly same driver.
   class Job
-
     attr_reader :tasks, :hosts, :driver, :id
 
     # creates a new job
