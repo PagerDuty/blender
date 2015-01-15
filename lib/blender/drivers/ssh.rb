@@ -18,7 +18,7 @@
 require 'net/ssh'
 require 'blender/exceptions'
 require 'blender/drivers/base'
-require 'blender/drivers/common'
+require 'blender/drivers/ssh_exec'
 
 module Blender
   module Driver
