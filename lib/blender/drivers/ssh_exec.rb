@@ -1,4 +1,4 @@
-module Common
+module Blender::Driver::SSHExec
   def remote_exec(command, session)
     session.open_channel do |ch|
       ch.request_pty

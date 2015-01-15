@@ -24,7 +24,7 @@ module Blender
   module Driver
     class Ssh < Base
       attr_reader :user
-      include Common
+      include SSHExec
 
       def initialize(config = {})
         cfg = config.dup

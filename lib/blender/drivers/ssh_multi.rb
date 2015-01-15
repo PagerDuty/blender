@@ -23,7 +23,7 @@ require 'blender/drivers/common'
 module Blender
   module Driver
     class SshMulti < Ssh
-      include Common
+      include SSHExec
 
       def execute(tasks, hosts)
         Log.debug("SSH execution tasks [#{tasks.size}]")
