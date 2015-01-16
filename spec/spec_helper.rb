@@ -1,9 +1,3 @@
-require 'simplecov'
-SimpleCov.formatter = SimpleCov::Formatter::HTMLFormatter
-SimpleCov.start do
-  add_filter '/spec/'
-  add_filter '.bundle'
-end
 
 require 'rspec'
 require 'rspec/mocks'

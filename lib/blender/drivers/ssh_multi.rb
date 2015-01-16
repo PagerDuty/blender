@@ -23,12 +23,11 @@ require 'blender/drivers/ssh_exec'
 module Blender
   module Driver
     class SshMulti < Ssh
-      include SSHExec
 
       def execute(tasks, hosts)
         Log.debug("SSH execution tasks [#{tasks.size}]")
         Log.debug("SSH on hosts [#{hosts.join("\n")}]")
-        session = ssh_multi_session(hosts)
+        session = create_session(hosts)
         Array(tasks).each do |task|
           cmd = run_command(task.command, session)
           if cmd.exitstatus != 0 and !task.metadata[:ignore_failure]
@@ -38,22 +37,13 @@ module Blender
         session.loop
       end
 
-      def run_command(command, session)
-        password = @config[:password]
-        command = fixup_sudo(command)
-        exit_status = 0
-        channel = remote_exec(command, session)
-        channel.wait
-        ExecOutput.new(exit_status, stdout, stderr)
-      end
-
       def concurrency
         @config[:concurrency]
       end
 
       private
 
-      def ssh_multi_session(hosts)
+      def create_session(hosts)
         user = @config[:user] || ENV['USER']
         ssh_config = { password: @config[:password]}
         error_handler = lambda do |server|

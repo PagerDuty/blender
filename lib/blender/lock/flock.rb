@@ -36,7 +36,7 @@ module Blender
           end
         else
           locked = @lock_fd.flock(File::LOCK_NB | File::LOCK_EX)
-          raise LockAcquisitionError, 'Failed to lock file' if locked == false
+          raise LockAcquisitionError, "Failed to lock file '#{@path}'" if locked == false
         end
         @lock_fd.write({job: @job_name, pid: Process.pid }.inspect)
       end
