@@ -36,7 +36,7 @@ module Blender
         Log.debug("SSH execution tasks [#{Array(tasks).size}]")
         Log.debug("SSH on hosts [#{hosts.join(",")}]")
         Array(hosts).each do |host|
-          session = ssh_session(host)
+          session = create_session(host)
           Array(tasks).each do |task|
             cmd = run_command(task.command, session)
             if cmd.exitstatus != 0 and !task.metadata[:ignore_failure]
@@ -48,23 +48,15 @@ module Blender
       end
 
       def run_command(command, session)
-        password = config[:password]
-        command = fixup_sudo(command)
-        exit_status = 0
-        channel = remote_exec(command, session)    
-        channel.wait
+        exit_status = remote_exec(command, session)
         ExecOutput.new(exit_status, stdout, stderr)
       end
 
       private
 
-      def ssh_session(host)
+      def create_session(host)
         Log.debug("Invoking ssh: #{user}@#{host}")
         Net::SSH.start(host, user, config)
-      end
-
-      def fixup_sudo(command)
-        command.sub(/^sudo/, 'sudo -p \'blender sudo password: \'')
       end
     end
   end
