@@ -22,7 +22,7 @@ module Blender
   module Lock
     class Flock
       def initialize(name, options)
-        @path = options['path'] || File.join('/tmp', name)
+        @path = options['path'] || File.join(Dir::tmpdir, name)
         @timeout = options[:timeout] || 0
         @job_name = name
       end
@@ -44,6 +44,7 @@ module Blender
       def release
         @lock_fd.flock(File::LOCK_UN)
         @lock_fd.close
+        File.delete(@path) if File.exists?(@path)
       end
 
       def with_lock
