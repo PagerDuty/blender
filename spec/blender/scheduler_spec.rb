@@ -4,6 +4,14 @@ describe Blender::Scheduler do
   let(:scheduler) do
     described_class.new('test')
   end
+  describe '#no_doc' do
+    it 'should not use document handler if no_doc option is passed' do
+      expect(Blender::Handlers::Doc).to_not receive(:new)
+      task = Blender::Task::Ruby.new('test')
+      sched = described_class.new('no_doc', [] , no_doc: true)
+      sched.run
+    end
+  end
   describe '#DSL' do
     subject(:task){scheduler.tasks.first}
     it '#ask' do

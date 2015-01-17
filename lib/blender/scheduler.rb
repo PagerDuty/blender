@@ -38,12 +38,14 @@ module Blender
     attr_reader :events, :tasks
     attr_reader :lock_properties
 
-    def initialize(name, tasks = [], metadata = {})
+    def initialize(name, tasks = [], options = {})
       @name = name
       @tasks = tasks
-      @metadata = default_metadata.merge(metadata)
       @events = Blender::EventDispatcher.new
-      events.register(Blender::Handlers::Doc.new)
+      unless options.delete(:no_doc)
+        events.register(Blender::Handlers::Doc.new)
+      end
+      @metadata = default_metadata.merge(options)
       @scheduling_strategy = nil
       @lock_properties = {driver: nil, driver_options: {}}
     end
