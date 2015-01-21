@@ -24,6 +24,8 @@ module Blender
     def self.exit_on_failure?
       true
     end
+    stop_on_unknown_option! :from_file
+    check_unknown_options! except: :from_file
 
     default_command :from_file
     package_name 'Blender'
@@ -46,7 +48,7 @@ module Blender
       aliases: '-n',
       banner: 'No-op mode, run blender without executing jobs'
 
-    def from_file
+    def from_file(*args)
       Configuration[:noop] = options[:noop]
       des = File.read(options[:file])
       $LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(options[:file]), 'lib')))
