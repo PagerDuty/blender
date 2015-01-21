@@ -27,6 +27,7 @@ module Blender
     def initialize
       @data = Hash.new{|h, k| h[k] = Hash.new}
       @data[:noop] = false
+      @data[:arguments] = []
       @mutex = Mutex.new
     end
 
