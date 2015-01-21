@@ -16,6 +16,7 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'blender/cli'
 
 describe Blender do
   describe '#blend' do
@@ -32,6 +33,12 @@ describe Blender do
         end
       end
       expect(x).to eq(100)
+    end
+    context 'CLI' do
+      it 'should store additional arguments in config' do
+        Blender::CLI.start(%w{-f spec/data/example.rb -x -y -z})
+        expect(Blender::Configuration[:arguments]).to eq(%w{-x -y -z})
+      end
     end
   end
 end

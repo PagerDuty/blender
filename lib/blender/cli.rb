@@ -50,6 +50,7 @@ module Blender
 
     def from_file(*args)
       Configuration[:noop] = options[:noop]
+      Configuration[:arguments] = args
       des = File.read(options[:file])
       $LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(options[:file]), 'lib')))
       Blender.blend(options[:file], options[:config_file]) do |sch|
