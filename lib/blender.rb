@@ -29,10 +29,12 @@ module Blender
   # command and executed with local shellout driver
   #
   # @param name [String] Name of the run
+  # @param options[Hash] Additional options for scheduler
   #
   # @return [void]
-  def self.blend(name, config_file = nil)
-    scheduler = Scheduler.new(name)
+  def self.blend(name, options = {})
+    config_file = options.delete(:config_file)
+    scheduler = Scheduler.new(name, [], options)
     configure(config_file) if config_file
     if block_given?
       yield scheduler

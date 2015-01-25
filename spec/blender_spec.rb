@@ -39,6 +39,10 @@ describe Blender do
         Blender::CLI.start(%w{-f spec/data/example.rb -x -y -z})
         expect(Blender::Configuration[:arguments]).to eq(%w{-x -y -z})
       end
+      it 'should store additional arguments in config' do
+        expect(Blender::Handlers::Doc).to_not receive(:new)
+        Blender::CLI.start(%w{-q -f spec/data/example.rb})
+      end
     end
   end
 end
