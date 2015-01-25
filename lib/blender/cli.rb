@@ -48,12 +48,22 @@ module Blender
       aliases: '-n',
       banner: 'No-op mode, run blender without executing jobs'
 
+    method_option :quiet,
+      default: false,
+      type: :boolean,
+      aliases: '-q',
+      banner: 'Quiet mode. Disable printing running job details'
+
     def from_file(*args)
       Configuration[:noop] = options[:noop]
       Configuration[:arguments] = args
       des = File.read(options[:file])
       $LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(options[:file]), 'lib')))
-      Blender.blend(options[:file], options[:config_file]) do |sch|
+      scheduler_options = {
+        config_file: options[:config_file],
+        no_doc: options[:quiet]
+      }
+      Blender.blend(options[:file], scheduler_options) do |sch|
         sch.instance_eval(des, __FILE__, __LINE__)
       end
     end

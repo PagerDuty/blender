@@ -21,9 +21,5 @@ RSpec.configure do |config|
   config.mock_with :rspec do |mocks|
     mocks.verify_doubled_constant_names = true
   end
-  config.before(:each) do
-    doc = double(Blender::Handlers::Doc).as_null_object
-    allow(Blender::Handlers::Doc).to receive(:new).and_return(doc)
-  end
   config.backtrace_exclusion_patterns = []
 end
