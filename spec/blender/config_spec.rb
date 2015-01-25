@@ -15,42 +15,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'singleton'
-require 'thread'
+require 'spec_helper'
 
-module Blender
-  class Configuration
-    include Singleton
-
-    attr_reader :data, :mutex
-
-    def initialize
-      @mutex = Mutex.new
-      reset!
-    end
-
-    def self.[]=(key, value)
-      instance.mutex.synchronize do
-        instance.data[key] = value
-      end
-    end
-
-    def self.[](key)
-      instance.mutex.synchronize do
-        instance.data[key]
-      end
-    end
-
-    def self.reset!
-      instance.mutex.synchronize do
-        instance.reset!
-      end
-    end
-
-    def reset!
-      @data = Hash.new{|h, k| h[k] = Hash.new}
-      @data[:noop] = false
-      @data[:arguments] = []
-    end
+describe Blender::Configuration do
+  it 'should populate argments and noop key' do
+    expect(Blender::Configuration[:noop]).to be(false)
+    expect(Blender::Configuration[:argments]).to be_empty
+  end
+  it 'should set configs globally' do
+    Blender::Configuration[:x] = 1
+    expect(Blender::Configuration[:x]).to eq(1)
+  end
+  it 'should reset config' do
+    Blender::Configuration[:x] = 1
+    Blender::Configuration.reset!
+    expect(Blender::Configuration[:x]).to be_empty
   end
 end
