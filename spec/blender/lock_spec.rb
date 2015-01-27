@@ -5,7 +5,7 @@ describe Blender::Lock do
     it 'should not allow two blender run with same lockfile to run at the same time' do
       pid1 = fork do
         Blender.blend('test-1') do |sched|
-          sched.lock_options('flock', path: '/var/lock/test-1')
+          sched.lock_options('flock')
           sched.members(['localhost'])
           sched.ruby_task('date') do
             execute do
@@ -19,7 +19,7 @@ describe Blender::Lock do
       pid2 = fork do
         STDERR.reopen(File::NULL)
         Blender.blend('test-1') do |sched|
-          sched.lock_options('flock', path: '/var/lock/test-1')
+          sched.lock_options('flock')
           sched.members(['localhost'])
           sched.ruby_task('date') do
             execute do
@@ -38,7 +38,7 @@ describe Blender::Lock do
     it 'should allow two blender run with different lock file to run at the same time' do
       pid1 = fork do
         Blender.blend('test-1') do |sched|
-          sched.lock_options('flock', path: '/var/lock/test-1')
+          sched.lock_options('flock')
           sched.members(['localhost'])
           sched.ruby_task('date') do
             execute do
@@ -51,7 +51,7 @@ describe Blender::Lock do
 
       pid2 = fork do
         Blender.blend('test-2') do |sched|
-          sched.lock_options('flock', path: '/var/lock/test-2')
+          sched.lock_options('flock')
           sched.members(['localhost'])
           sched.ruby_task('date') do
             execute do
@@ -69,7 +69,7 @@ describe Blender::Lock do
     it 'should raise lock acquisition error when times out' do
       pid1 = fork do
         Blender.blend('test-1') do |sched|
-          sched.lock_options('flock', path: '/var/lock/test-1')
+          sched.lock_options('flock')
           sched.members(['localhost'])
           sched.ruby_task('date') do
             execute do
@@ -84,7 +84,7 @@ describe Blender::Lock do
         STDERR.reopen(File::NULL)
         Blender.blend('test-1') do |sched|
           sched.members(['localhost'])
-          sched.lock_options('flock', timeout: 3, path: '/var/lock/test-1')
+          sched.lock_options('flock', timeout: 3)
           sched.ruby_task('date') do
             execute do
               puts 'This will fail'
@@ -101,7 +101,7 @@ describe Blender::Lock do
     it 'should not raise lock acquisition error when  able to acquire lock within timeout period' do
       pid1 = fork do
         Blender.blend('test-1') do |sched|
-          sched.lock_options('flock', path: '/var/lock/test-1')
+          sched.lock_options('flock')
           sched.members(['localhost'])
           sched.ruby_task('date') do
             execute do
@@ -116,7 +116,7 @@ describe Blender::Lock do
         STDERR.reopen(File::NULL)
         Blender.blend('test-1') do |sched|
           sched.members(['localhost'])
-          sched.lock_options('flock', timeout:10, path: '/var/lock/test-1')
+          sched.lock_options('flock', timeout: 10)
           sched.ruby_task('date') do
             execute do
               puts 'This will fail'

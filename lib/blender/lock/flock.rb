@@ -44,6 +44,7 @@ module Blender
       def release
         @lock_fd.flock(File::LOCK_UN)
         @lock_fd.close
+        File.delete(@path) if File.exists?(@path)
       end
 
       def with_lock
