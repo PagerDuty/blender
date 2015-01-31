@@ -21,7 +21,6 @@ module Blender
     class Base
       include Blender::Discovery
 
-      attr_reader :guards
       attr_reader :metadata
       attr_reader :name
       attr_reader :hosts
