@@ -45,6 +45,24 @@ module Blender
           session.loop
         end
       end
+
+      def run_command(command, session)
+        begin
+          case command.direction
+          when :upload
+            session.scp.upload!(command.source, command.target)
+            ExecOutput.new(0, '', '')
+          when :download
+            session.scp.download!(command.source, command.target)
+            ExecOutput.new(0, '', '')
+          else
+            ExecOutput.new(-1, '' , "Invalid direction. Can be either :upload or :download. Found:'#{command.direction}'")
+          end
+        rescue StandardError => e
+          ExecOutput.new(-1, stdout, e.message + e.backtrace.join("\n"))
+        end
+      end
+
       private
 
       def create_session(host)
@@ -54,20 +72,10 @@ module Blender
     end
 
     class ScpUpload < Blender::Driver::Scp
-      def run_command(command, session)
-        begin
-          session.scp.upload!(command.source, command.target)
-          ExecOutput.new(0, '', '')
-        rescue StandardError => e
-          ExecOutput.new(-1, stdout, e.message + e.backtrace.join("\n"))
-        end
-      end
     end
     class ScpDownload < Blender::Driver::Scp
       def run_command(command, session)
         begin
-          session.scp.download!(command.source, command.target)
-          ExecOutput.new(0, '', '')
         rescue StandardError => e
           ExecOutput.new(-1, stdout, e.message + e.backtrace.join("\n"))
         end

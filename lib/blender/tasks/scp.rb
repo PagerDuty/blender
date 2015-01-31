@@ -16,25 +16,23 @@
 # limitations under the License.
 
 require 'blender/tasks/ssh'
+require 'forwardable'
 
 module Blender
   module Task
     class Scp < Blender::Task::Base
+      extend Forwardable
+      def_delegators :@command, :direction, :direction=
       def initialize(name, metadata = {})
         super
-        @command = Struct.new(:source, :target).new
+        @command = Struct.new(:direction, :source, :target).new
         @command.target = name
         @command.source = name
+        @direction = :upload
       end
-    end
-
-    class ScpUpload < Blender::Task::Scp
       def from(source)
         @command.source = source
       end
-    end
-
-    class ScpDownload < Blender::Task::Scp
       def to(target)
         @command.target = target
       end

@@ -120,15 +120,17 @@ module Blender
     end
 
     def scp_upload(name, &block)
-      task = build_task(name, :scp_upload)
+      task = build_task(name, :scp)
       task.instance_eval(&block) if block_given?
-      append_task(:scp_upload, task)
+      task.direction = :upload
+      append_task(:scp, task)
     end
 
     def scp_download(name, &block)
-      task = build_task(name, :scp_download)
+      task = build_task(name, :scp)
       task.instance_eval(&block) if block_given?
-      append_task(:scp_download, task)
+      task.direction = :download
+      append_task(:scp, task)
     end
 
     def strategy(strategy)
