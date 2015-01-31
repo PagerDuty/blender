@@ -21,12 +21,15 @@ require 'blender/tasks/base'
 require 'blender/tasks/ruby'
 require 'blender/tasks/ssh'
 require 'blender/tasks/shell_out'
+require 'blender/tasks/scp'
 require 'highline'
 require 'blender/utils/refinements'
+require 'blender/drivers/ssh'
 require 'blender/drivers/ssh'
 require 'blender/drivers/ssh_multi'
 require 'blender/drivers/shellout'
 require 'blender/drivers/ruby'
+require 'blender/drivers/scp'
 require 'blender/discovery'
 require 'blender/handlers/base'
 require 'blender/lock/flock'
@@ -114,6 +117,18 @@ module Blender
       task = build_task(name, :ssh)
       task.instance_eval(&block) if block_given?
       append_task(:ssh, task)
+    end
+
+    def scp_upload(name, &block)
+      task = build_task(name, :scp_upload)
+      task.instance_eval(&block) if block_given?
+      append_task(:scp_upload, task)
+    end
+
+    def scp_download(name, &block)
+      task = build_task(name, :scp_download)
+      task.instance_eval(&block) if block_given?
+      append_task(:scp_download, task)
     end
 
     def strategy(strategy)

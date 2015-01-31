@@ -126,6 +126,18 @@ can execute `ssh_task`s. Blender core ships with following tasks and drivers:
   end
   ```
 
+  - **scp_task**: download or upload files using scp
+
+  ```ruby
+  members ['host1', 'host2', 'host3']
+  scp_upload '/foo/bar' do
+    from '/path/to/remote/file'
+  end
+  scp_download '/foo/bar' do
+    to '/local/path'
+  end
+  ```
+
 As mentioned earlier tasks are executed using drivers. Tasks can declare their preferred driver or
 Blender will assign a driver to them automatically. Blender will reuse the global driver if its
 compatible, else it will create one. By default the ```global_driver``` is a ```shell_out``` driver.
@@ -286,7 +298,7 @@ Following are some examples:
   - **chef**: discover hosts using Chef search
 
   ```ruby
-  require 'blender/dscoveries/chef'
+  require 'blender/discoveries/chef'
 
   ruby_task 'print host name' do
     execute do |host|
