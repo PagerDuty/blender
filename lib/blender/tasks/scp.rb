@@ -22,19 +22,36 @@ module Blender
   module Task
     class Scp < Blender::Task::Base
       extend Forwardable
+
       def_delegators :@command, :direction, :direction=
+
       def initialize(name, metadata = {})
         super
-        @command = Struct.new(:direction, :source, :target).new
+        @command = Struct.new(:direction, :source, :target, :options).new
         @command.target = name
         @command.source = name
+        @command.options = {}
         @direction = :upload
       end
+
       def from(source)
         @command.source = source
       end
+
       def to(target)
         @command.target = target
+      end
+
+      def recursive(val)
+        @command.options[:recursive] = val
+      end
+
+      def preserve(val)
+        @command.options[:preserve] = val
+      end
+
+      def chunk_size(val)
+        @command.options[:chunk_size] = val
       end
     end
   end
