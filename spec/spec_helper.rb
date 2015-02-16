@@ -5,6 +5,7 @@ require 'rspec/expectations'
 require 'blender'
 require 'blender/scheduling_strategies/per_host'
 require 'blender/scheduling_strategies/per_task'
+require 'pry'
 
 module SpecHelper
   def create_task(name, driver = nil)
