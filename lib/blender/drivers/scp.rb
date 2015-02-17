@@ -50,10 +50,10 @@ module Blender
         begin
           case command.direction
           when :upload
-            session.scp.upload!(command.source, command.target)
+            session.scp.upload!(command.source, command.target, command.options)
             ExecOutput.new(0, '', '')
           when :download
-            session.scp.download!(command.source, command.target)
+            session.scp.download!(command.source, command.target, command.options)
             ExecOutput.new(0, '', '')
           else
             ExecOutput.new(-1, '' , "Invalid direction. Can be either :upload or :download. Found:'#{command.direction}'")
