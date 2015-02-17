@@ -16,4 +16,18 @@ describe Blender do
       end
     end
   end
+  it '#download' do
+    session = double('Net::SSH::Session', loop: true)
+    scp = double('Net::SSH::Scp')
+    expect(Net::SSH).to receive(:start).with('host1', 'x', password: 'y').and_return(session)
+    expect(session).to receive(:scp).and_return(scp)
+    expect(scp).to receive(:download!).with('/remote/path', '/local/path', {})
+    Blender.blend('test') do |sched|
+      sched.members(['host1'])
+      sched.config(:scp, user: 'x', password: 'y')
+      sched.scp_download '/remote/path' do
+        to '/local/path'
+      end
+    end
+  end
 end
