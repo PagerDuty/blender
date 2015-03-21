@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'mixlib-shellout'
   spec.add_dependency 'mixlib-log'
   spec.add_dependency 'net-ssh'
+  spec.add_dependency 'net-ssh-multi'
   spec.add_dependency 'net-scp'
   spec.add_dependency 'rufus-scheduler'
 
