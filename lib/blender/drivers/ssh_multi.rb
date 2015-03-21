@@ -19,6 +19,7 @@ require 'net/ssh'
 require 'blender/exceptions'
 require 'blender/drivers/ssh'
 require 'blender/drivers/ssh_exec'
+require 'net/ssh/multi'
 
 module Blender
   module Driver
@@ -27,25 +28,19 @@ module Blender
       def execute(tasks, hosts)
         Log.debug("SSH execution tasks [#{tasks.size}]")
         Log.debug("SSH on hosts [#{hosts.join("\n")}]")
-        session = create_session(hosts)
         Array(tasks).each do |task|
+          session = create_session(hosts, task.metadata[:concurrency])
           cmd = run_command(task.command, session)
           if cmd.exitstatus != 0 and !task.metadata[:ignore_failure]
             raise ExecutionFailed, cmd.stderr
           end
+          session.loop
         end
-        session.loop
-      end
-
-      def concurrency
-        @config[:concurrency]
       end
 
       private
 
-      def create_session(hosts)
-        user = @config[:user] || ENV['USER']
-        ssh_config = { password: @config[:password]}
+      def create_session(hosts, concurrency)
         error_handler = lambda do |server|
           if config[:ignore_on_failure]
             $!.backtrace.each { |l| Blender::Log.debug(l) }
@@ -58,7 +53,7 @@ module Blender
           on_error: error_handler
         )
         hosts.each do |h|
-          s.use(user + '@' + h)
+          s.use(user + '@' + h, config)
         end
         s
       end

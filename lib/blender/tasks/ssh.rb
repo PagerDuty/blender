@@ -20,6 +20,16 @@ require 'blender/tasks/ssh'
 module Blender
   module Task
     class Ssh < Blender::Task::Base
+      def concurrency(n)
+        @metadata[:concurrency] = n
+      end
+
+      def default_metadata
+        { 
+          ignore_failure: false,
+          concurrency: 1
+        }
+      end
     end
   end
 end

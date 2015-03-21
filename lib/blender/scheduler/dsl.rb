@@ -116,7 +116,11 @@ module Blender
     def ssh_task(name, &block)
       task = build_task(name, :ssh)
       task.instance_eval(&block) if block_given?
-      append_task(:ssh, task)
+      if task.metadata[:concurrency] == 1
+        append_task(:ssh, task)
+      else
+        append_task(:ssh_multi, task)
+      end
     end
 
     def scp_upload(name, &block)
