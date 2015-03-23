@@ -40,7 +40,7 @@ module Blender
     include Blender::Discovery
 
     def config(type, opts = {})
-      Blender::Configuration[type].merge!(opts)
+      blender_config(type).merge!(opts)
     end
 
     alias :init :config
@@ -82,18 +82,17 @@ module Blender
 
     def build_task(name, type)
       task_klass = Blender::Task.const_get(camelcase(type.to_s).to_sym)
-      driver_klass = Blender::Driver.const_get(camelcase(type.to_s).to_sym)
       task = task_klass.new(name)
       task.members(metadata[:members]) unless metadata[:members].empty?
       task
     end
 
-    def append_task(type, task)
+    def append_task(type, task, driver_config = {})
       Log.debug("Appended task:#{task.name}")
       klass = Blender::Driver.const_get(camelcase(type.to_s).to_sym)
       if task.driver.nil?
-        opts = {}
-        opts.merge!(Blender::Configuration[type]) unless Blender::Configuration[type].empty?
+        opts = driver_config.dup
+        opts.merge!(blender_config(type)) unless blender_config(type).empty?
         opts.merge!(task.driver_opts)
         task.use_driver(driver(type, opts))
       end
@@ -119,7 +118,7 @@ module Blender
       if task.metadata[:concurrency] == 1
         append_task(:ssh, task)
       else
-        append_task(:ssh_multi, task)
+        append_task(:ssh_multi, task, blender_config(:ssh))
       end
     end
 
@@ -127,14 +126,14 @@ module Blender
       task = build_task(name, :scp)
       task.instance_eval(&block) if block_given?
       task.direction = :upload
-      append_task(:scp, task)
+      append_task(:scp, task, blender_config(:ssh))
     end
 
     def scp_download(name, &block)
       task = build_task(name, :scp)
       task.instance_eval(&block) if block_given?
       task.direction = :download
-      append_task(:scp, task)
+      append_task(:scp, task, blender_config(:ssh))
     end
 
     def strategy(strategy)
@@ -177,5 +176,11 @@ module Blender
     end
 
     alias_method :task, :shell_task
+
+    private
+
+    def blender_config(key)
+      Blender::Configuration[key]
+    end
   end
 end
