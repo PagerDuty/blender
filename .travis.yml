@@ -5,10 +5,15 @@ cache:
 before_install:
   - bundle install --path .bundle
 rvm:
-  - 1.9.3
   - 2.1
   - 2.2
+  - jruby-21mode
 branches:
   only:
     - master
 script: "bundle exec rake spec rspec"
+
+matrix:
+  include:
+    - rvm: jruby-21mode
+      script: "bundle exec rspec --tag ~fork"
