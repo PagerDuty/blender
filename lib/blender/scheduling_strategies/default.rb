@@ -26,7 +26,7 @@ module Blender
         job_id = 0
         jobs = pairs.map do |task, host|
           Log.debug("Creating job (#{host}|#{task.name})")
-          job_id += 1
+          job_id = job_id + 1
           Job.new(job_id, task.driver, [task], [host])
         end
         Log.debug("Total jobs : #{jobs.size}")

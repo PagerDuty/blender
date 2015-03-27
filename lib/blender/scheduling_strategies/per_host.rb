@@ -26,8 +26,9 @@ module Blender
         if hosts_list.size != 1
           raise UnsupportedFeature, 'PerHost strategy does not support scheduling tasks with different memebers'
         end
-        job_id = 1
+        job_id = 0
         jobs = hosts_list.first.map do |host|
+          job_id = job_id + 1
           Job.new(job_id, Blender::Driver::Compound.new, tasks, [host])
         end
         Log.debug("Total jobs : #{jobs.size}")
