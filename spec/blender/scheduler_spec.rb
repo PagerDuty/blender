@@ -29,13 +29,13 @@ describe Blender::Scheduler do
       before do
         scheduler.task('whoa')
       end
-      it 'should belong to base class' do
+      it 'belong to base class' do
         expect(task).to be_kind_of(Blender::Task::Base)
       end
-      it 'should use shellout driver' do
+      it 'use shellout driver' do
         expect(task.driver).to be_kind_of(Blender::Driver::ShellOut)
       end
-      it 'should contain only one task' do
+      it 'contain only one task' do
         expect(scheduler.tasks.size).to eq(1)
       end
     end
@@ -46,21 +46,21 @@ describe Blender::Scheduler do
           execute('ls -l')
         end
       end
-      it 'should have correct hosts list' do
+      it 'have correct hosts list' do
         expect(task.hosts).to eq(['a'])
       end
-      it 'should have correct command' do
+      it 'have correct command' do
         expect(task.command).to eq('ls -l')
       end
-      it 'should use ssh task subclass' do
+      it 'use ssh task subclass' do
         expect(task).to be_kind_of(Blender::Task::Ssh)
       end
-      it 'should use the ssh driver' do
+      it 'use the ssh driver' do
         expect(task.driver).to be_kind_of(Blender::Driver::Ssh)
       end
     end
     describe '#on' do
-      it 'should invoke custom block on specific events' do
+      it 'invoke custom block on specific events', fork: true do
         test = 1
         Blender.blend('do it') do |sched|
           sched.on :run_finished do |x|
