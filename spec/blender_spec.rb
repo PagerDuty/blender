@@ -20,12 +20,12 @@ require 'blender/cli'
 
 describe Blender do
   describe '#blend' do
-    it 'should invoke a local command is no block is given' do
+    it 'invoke a local command is no block is given' do
       cmd = double(Mixlib::ShellOut, exitstatus: 0).as_null_object
       expect(Mixlib::ShellOut).to receive(:new).with('foo', {}).and_return(cmd)
       described_class.blend('foo')
     end
-    it 'should yield a scheduler object when block passed' do
+    it 'yield a scheduler object when block passed' do
       x = 1
       described_class.blend('test') do |sched|
         sched.ruby_task 'foo' do
@@ -35,11 +35,11 @@ describe Blender do
       expect(x).to eq(100)
     end
     context 'CLI' do
-      it 'should store additional arguments in config' do
+      it 'store additional arguments in config', fork: true do
         Blender::CLI.start(%w{-f spec/data/example.rb -x -y -z})
         expect(Blender::Configuration[:arguments]).to eq(%w{-x -y -z})
       end
-      it 'should store additional arguments in config' do
+      it 'store additional arguments in config', fork: true do
         expect(Blender::Handlers::Doc).to_not receive(:new)
         Blender::CLI.start(%w{-q -f spec/data/example.rb})
       end

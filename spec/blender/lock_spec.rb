@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Blender::Lock do
   context 'File based locking' do
-    it 'should not allow two blender run with same lockfile to run at the same time' do
+    it 'not allow two blender run with same lockfile to run at the same time', fork: true do
       pid1 = fork do
         Blender.blend('test-1') do |sched|
           sched.lock_options('flock')
@@ -35,7 +35,7 @@ describe Blender::Lock do
       expect(status2.last.exitstatus).to_not eq(0)
     end
 
-    it 'should allow two blender run with different lock file to run at the same time' do
+    it 'allow two blender run with different lock file to run at the same time', fork: true do
       pid1 = fork do
         Blender.blend('test-1') do |sched|
           sched.lock_options('flock')
@@ -66,7 +66,7 @@ describe Blender::Lock do
       expect(status2.last.exitstatus).to eq(0)
     end
 
-    it 'should raise lock acquisition error when times out' do
+    it 'raise lock acquisition error when times out', fork: true do
       pid1 = fork do
         Blender.blend('test-1') do |sched|
           sched.lock_options('flock')
@@ -98,7 +98,7 @@ describe Blender::Lock do
       expect(status2.last.exitstatus).to_not eq(0)
     end
 
-    it 'should not raise lock acquisition error when  able to acquire lock within timeout period' do
+    it 'not raise lock acquisition error when  able to acquire lock within timeout period', fork: true do
       pid1 = fork do
         Blender.blend('test-1') do |sched|
           sched.lock_options('flock')
