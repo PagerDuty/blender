@@ -49,6 +49,11 @@ describe Blender::SchedulingStrategy do
     it 'all jobs should have all task' do
       expect(jobs.map(&:tasks).map(&:size).uniq).to eq([tasks.size])
     end
+    it 'assigns correct job id' do
+      hosts.size.times do |n|
+        expect(jobs[n].id).to eq(n+1)
+      end
+    end
   end
   describe Blender::SchedulingStrategy::PerTask do
     before do
