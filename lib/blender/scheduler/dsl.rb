@@ -40,7 +40,7 @@ module Blender
     include Blender::Discovery
 
     def config(type, opts = {})
-      blender_config(type).merge!(opts)
+      update_config(type, opts)
     end
 
     alias :init :config
@@ -176,11 +176,5 @@ module Blender
     end
 
     alias_method :task, :shell_task
-
-    private
-
-    def blender_config(key)
-      Blender::Configuration[key]
-    end
   end
 end

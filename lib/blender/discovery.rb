@@ -16,7 +16,6 @@
 # limitations under the License.
 
 require 'blender/utils/refinements'
-require 'blender/configuration'
 
 module Blender
   module Discovery
@@ -24,7 +23,7 @@ module Blender
 
     def build_discovery(type, opts = {})
       disco_klass = Blender::Discovery.const_get(camelcase(type.to_s).to_sym)
-      disco_opts = Blender::Configuration[type].merge(opts)
+      disco_opts = blender_config(type).merge(opts)
       disco_klass.new(symbolize(disco_opts))
     end
 

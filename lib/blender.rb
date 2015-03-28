@@ -20,7 +20,6 @@ require 'blender/scheduler'
 require 'blender/log'
 require 'blender/drivers/shellout'
 require 'json'
-require 'blender/configuration'
 
 # Top level module that holds all blender related libraries under this namespace
 module Blender
@@ -35,7 +34,7 @@ module Blender
   def self.blend(name, options = {})
     config_file = options.delete(:config_file)
     scheduler = Scheduler.new(name, [], options)
-    configure(config_file) if config_file
+    configure(scheduler, config_file) if config_file
     if block_given?
       yield scheduler
     else
@@ -45,7 +44,7 @@ module Blender
     scheduler
   end
 
-  def self.configure(file)
+  def self.configure(scheduler, file)
     data = JSON.parse(File.read(file))
 
     Blender::Log.level = data['log_level'].to_sym if data['log_level']
@@ -58,7 +57,7 @@ module Blender
     end
     if data['scheduler']
       data['scheduler'].each do |key, value|
-        Blender::Configuration[key.to_sym] = value
+        scheduler.update_config(key.to_sym, value)
       end
     end
   end

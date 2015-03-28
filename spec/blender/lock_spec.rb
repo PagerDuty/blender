@@ -4,7 +4,9 @@ describe Blender::Lock do
   context 'File based locking' do
     it 'not allow two blender run with same lockfile to run at the same time', fork: true do
       pid1 = fork do
-        Blender.blend('test-1') do |sched|
+        STDOUT.reopen(File::NULL)
+        STDERR.reopen(File::NULL)
+        Blender.blend('test-1', no_doc: true) do |sched|
           sched.lock_options('flock')
           sched.members(['localhost'])
           sched.ruby_task('date') do
@@ -17,8 +19,9 @@ describe Blender::Lock do
       end
 
       pid2 = fork do
+        STDOUT.reopen(File::NULL)
         STDERR.reopen(File::NULL)
-        Blender.blend('test-1') do |sched|
+        Blender.blend('test-1', no_doc: true) do |sched|
           sched.lock_options('flock')
           sched.members(['localhost'])
           sched.ruby_task('date') do
@@ -50,7 +53,7 @@ describe Blender::Lock do
       end
 
       pid2 = fork do
-        Blender.blend('test-2') do |sched|
+        Blender.blend('test-2', no_doc: true) do |sched|
           sched.lock_options('flock')
           sched.members(['localhost'])
           sched.ruby_task('date') do

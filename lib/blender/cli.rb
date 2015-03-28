@@ -55,8 +55,7 @@ module Blender
       banner: 'Quiet mode. Disable printing running job details'
 
     def from_file(*args)
-      Configuration[:noop] = options[:noop]
-      Configuration[:arguments] = args
+      noop_mode = options[:noop]
       des = File.read(options[:file])
       $LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(options[:file]), 'lib')))
       scheduler_options = {
@@ -64,6 +63,8 @@ module Blender
         no_doc: options[:quiet]
       }
       Blender.blend(options[:file], scheduler_options) do |sch|
+        sch.update_config(:noop, noop_mode)
+        sch.update_config(:arguments, args)
         sch.instance_eval(des, __FILE__, __LINE__)
       end
     end
