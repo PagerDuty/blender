@@ -16,7 +16,6 @@
 # limitations under the License.
 
 require 'blender/log'
-require 'blender/configuration'
 require 'blender/utils/thread_pool'
 require 'blender/exceptions'
 require 'blender/scheduling_strategies/default'
@@ -27,6 +26,7 @@ require 'blender/scheduler/dsl'
 require 'blender/event_dispatcher'
 require 'blender/handlers/doc'
 require 'blender/tasks/base'
+require 'thread_safe'
 
 module Blender
   class Scheduler
@@ -38,10 +38,17 @@ module Blender
     attr_reader :events, :tasks
     attr_reader :lock_properties
 
-    def initialize(name, tasks = [], options = {})
+    # options
+    #   noop: true/false - No-Op mode, dont invoke job.run
+    #   arguments: array or any stock data
+    #   rest everything gets merged as metadata
+    def initialize(name, tasks = ThreadSafe::Array.new, options = {})
       @name = name
       @tasks = tasks
       @events = Blender::EventDispatcher.new
+      @config = ThreadSafe::Hash.new{ ThreadSafe::Hash.new }
+      @config[:noop] = options[:noop] || false
+      @config[:arguments] = options[:arguments] || []
       unless options.delete(:no_doc)
         events.register(Blender::Handlers::Doc.new)
       end
@@ -92,7 +99,9 @@ module Blender
     def run_job(job)
       events.job_started(job)
       Log.debug("Running job #{job.name}")
-      job.run
+      unless blender_config(:noop)
+        job.run
+      end
       events.job_finished(job)
     rescue StandardError => e
       events.job_failed(job, e)
@@ -103,13 +112,22 @@ module Blender
       end
     end
 
+    def blender_config(key)
+      @config[key]
+    end
+
+    def update_config(key, value)
+      @config[key] = value
+      @config
+    end
+
     def default_metadata
-      {
-       ignore_failure: false,
-       concurrency: 0,
-       handlers: [],
-       members: []
-      }
+      temp = ThreadSafe::Hash.new
+      temp[:ignore_failure] = false
+      temp[:concurrency] = 0
+      temp[:handlers] = ThreadSafe::Array.new
+      temp[:members] = ThreadSafe::Array.new
+      temp
     end
   end
 end

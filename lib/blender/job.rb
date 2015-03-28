@@ -17,7 +17,6 @@
 
 require 'blender/exceptions'
 require 'blender/log'
-require 'blender/configuration'
 
 module Blender
   # A job represent encapsulates an array of tasks to be performed
@@ -40,7 +39,7 @@ module Blender
     end
 
     def run
-      driver.execute(tasks, hosts) unless Configuration[:noop]
+      driver.execute(tasks, hosts)
     end
 
     def to_s

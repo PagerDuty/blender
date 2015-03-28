@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'net-ssh-multi'
   spec.add_dependency 'net-scp'
   spec.add_dependency 'rufus-scheduler'
+  spec.add_dependency 'thread_safe'
 
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'rake'

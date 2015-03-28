@@ -36,8 +36,8 @@ describe Blender do
     end
     context 'CLI' do
       it 'store additional arguments in config', fork: true do
-        Blender::CLI.start(%w{-f spec/data/example.rb -x -y -z})
-        expect(Blender::Configuration[:arguments]).to eq(%w{-x -y -z})
+        sched = Blender::CLI.start(%w{-q -f spec/data/example.rb -x -y -z})
+        expect(sched.blender_config(:arguments)).to eq(%w{-x -y -z})
       end
       it 'store additional arguments in config', fork: true do
         expect(Blender::Handlers::Doc).to_not receive(:new)
