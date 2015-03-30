@@ -51,7 +51,7 @@ module Blender
       end
 
       def pass_configs(*keys)
-        @command.pass_configs = keys
+        @command.pass_configs += keys unless keys.empty?
       end
 
       def config(key, opts = {})

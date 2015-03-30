@@ -141,8 +141,8 @@ module Blender
     def blend_task(name, &block)
       task = build_task(name, :blend)
       task.instance_eval(&block) if block_given?
-      task.pass_configs.each do |key|
-        task.config_store[key] = blender_config(key).dup
+      task.command.pass_configs.each do |key|
+        task.command.config_store[key] = blender_config(key).dup
       end
       append_task(:blend, task)
     end
