@@ -138,6 +138,18 @@ can execute `ssh_task`s. Blender core ships with following tasks and drivers:
   end
   ```
 
+  - **blend_task**: invoke a blender script as a task (nesting)
+
+  ```ruby
+  members ['host1', 'host2', 'host3']
+  blend_task 'test-task' do
+    file '/path/to/remote/file'
+    concurrency 10
+    strategy :per_host
+  end
+  ```
+
+
 As mentioned earlier tasks are executed using drivers. Tasks can declare their preferred driver or
 Blender will assign a driver to them automatically. Blender will reuse the global driver if its
 compatible, else it will create one. By default the ```global_driver``` is a ```shell_out``` driver.
