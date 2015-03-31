@@ -16,5 +16,5 @@
 # limitations under the License.
 
 module Blender
-  VERSION = '0.5'
+  VERSION = '0.6'
 end
