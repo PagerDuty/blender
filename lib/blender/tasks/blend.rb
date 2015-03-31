@@ -29,11 +29,14 @@ module Blender
           :strategy,
           :pass_configs,
           :config_store,
-          :concurrency).new
+          :concurrency,
+          :options
+        ).new
         @command.strategy = :default
         @command.concurrency = 1
         @command.pass_configs = []
         @command.config_store = ThreadSafe::Cache.new
+        @command.options = ThreadSafe::Hash.new
       end
 
       def strategy(st)
@@ -56,6 +59,10 @@ module Blender
 
       def config(key, opts = {})
         @command.config_store[key] = opts
+      end
+
+      def options(hash)
+        @command.options.merge!(hash)
       end
     end
   end

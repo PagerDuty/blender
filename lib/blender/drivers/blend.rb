@@ -32,12 +32,8 @@ module Blender
       def run_command(command, hosts)
         exit_status = 0
         err = ''
-        current_stdout = STDOUT.clone
-        current_stderr = STDERR.clone
         begin
-          STDOUT.reopen(stdout)
-          STDERR.reopen(stderr)
-          Blender.blend(command.file) do |sched|
+          Blender.blend(command.file, command.options) do |sched|
             sched.strategy(command.strategy)
             sched.members(hosts)
             sched.concurrency(command.concurrency)
@@ -49,9 +45,6 @@ module Blender
         rescue StandardError => e
           err = e.message + "\nBacktrace:" + e.backtrace.join("\n")
           exit_status = -1
-        ensure
-          STDOUT.reopen(current_stdout)
-          STDERR.reopen(current_stderr)
         end
         ExecOutput.new(exit_status, '', err)
       end
