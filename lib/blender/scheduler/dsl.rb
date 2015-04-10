@@ -166,7 +166,7 @@ module Blender
     end
 
     def members(hosts)
-      @metadata[:members] = hosts
+      @metadata[:members] = Array(hosts)
     end
 
     def lock_options(driver, opts = {})

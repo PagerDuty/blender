@@ -4,8 +4,18 @@ describe Blender::Scheduler do
   let(:scheduler) do
     described_class.new('test')
   end
+  context 'members' do
+    it 'assign target hosts from the dsl method' do
+      scheduler.members(%w(foo bar baz))
+      expect(scheduler.metadata[:members]).to eq(%w(foo bar baz))
+    end
+    it 'convers scalar values to array' do
+      scheduler.members('foo')
+      expect(scheduler.metadata[:members]).to eq(['foo'])
+    end
+  end
   describe '#no_doc' do
-    it 'should not use document handler if no_doc option is passed' do
+    it 'does not use document handler if no_doc option is passed' do
       expect(Blender::Handlers::Doc).to_not receive(:new)
       task = Blender::Task::Ruby.new('test')
       sched = described_class.new('no_doc', [] , no_doc: true)
@@ -80,21 +90,21 @@ describe Blender::Scheduler do
           end
         end
       end
-      it 'should setup correct hosts' do
+      it 'setup correct hosts' do
         expect(task.hosts).to eq(['c'])
       end
-      it 'should use the ruby task subclass' do
+      it 'uses the ruby task subclass' do
         expect(task).to be_kind_of(Blender::Task::Base)
       end
-      it 'should assign the proc as command' do
+      it 'assigns the proc as command' do
         expect(task.command).to be_kind_of(Proc)
       end
-      it 'should the ruby driver subclass' do
+      it 'assign ruby driver subclass' do
         expect(task.driver).to be_kind_of(Blender::Driver::Ruby)
       end
     end
     describe '#strategy' do
-      it '#should raise error for non-existent strategy' do
+      it 'raise error for non-existent strategy' do
         expect do
           scheduler.strategy(:foo)
         end.to raise_error(Blender::UnknownSchedulingStrategy)
@@ -123,19 +133,19 @@ describe Blender::Scheduler do
       expect(d).to be_kind_of(Blender::Driver::Ssh)
       expect(d.config[:foo]).to be(:bar)
     end
-    it 'should have no tasks' do
+    it 'has no tasks' do
       expect(scheduler.tasks).to be_empty
     end
-    it 'should have no hosts' do
+    it 'has no hosts' do
       expect(scheduler.metadata[:members]).to be_empty
     end
     describe '#run' do
-      it 'should use serial_run when concurrency is not set' do
+      it 'uses serial_run when concurrency is not set' do
         expect(scheduler).to receive(:serial_run)
         scheduler.task 'echo HelloWorld'
         scheduler.run
       end
-      it 'should use concurrent_run when concurrency is used' do
+      it 'uses concurrent_run when concurrency is used' do
         expect(scheduler).to receive(:concurrent_run)
         scheduler.task 'echo HelloWorld1'
         scheduler.task 'echo HelloWorld2'
