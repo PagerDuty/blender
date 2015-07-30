@@ -5,9 +5,9 @@ cache:
 before_install:
   - bundle install --path .bundle
 rvm:
-  - 1.9.3
   - 2.1
   - 2.2
+  - jruby-9.0.0.0
 branches:
   only:
     - master

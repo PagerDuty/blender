@@ -18,7 +18,7 @@ describe Blender do
     end
   end
 
-  it 'passes apropriate config options from parent blender script' do
+  it 'passes apropriate config options from parent blender script', fork: true do
     blend_task = sched.tasks.first
     expect(blend_task.command.config_store[:scp]).to eq(scp_config)
   end
