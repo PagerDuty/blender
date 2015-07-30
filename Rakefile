@@ -9,6 +9,7 @@ end
 
 RSpec::Core::RakeTask.new(:spec) do |t|
   t.pattern = %w(spec/**/*_spec.rb)
+  t.rspec_opts =%w(-t ~fork) if RUBY_PLATFORM == 'java'
 end
 
 RSpec::Core::RakeTask.new(:rspec) do |t|
