@@ -243,7 +243,7 @@ in each tasks) breaks them up into per node jobs.
   end
   ```
 
-  per task strategy allows drivers to optimize individual command execution accross multiple hosts. For
+  per task strategy allows drivers to optimize individual command execution across multiple hosts. For
   example `ssh_multi` driver allows parallel command execution across many hosts. And can be used
   as:
   ```ruby
