@@ -59,7 +59,8 @@ module Blender
             ExecOutput.new(-1, '' , "Invalid direction. Can be either :upload or :download. Found:'#{command.direction}'")
           end
         rescue StandardError => e
-          ExecOutput.new(-1, stdout, e.message + e.backtrace.join("\n"))
+          stdout.rewind
+          ExecOutput.new(-1, stdout.read, e.message + e.backtrace.join("\n"))
         end
       end
 
@@ -77,7 +78,8 @@ module Blender
       def run_command(command, session)
         begin
         rescue StandardError => e
-          ExecOutput.new(-1, stdout, e.message + e.backtrace.join("\n"))
+          stdout.rewind
+          ExecOutput.new(-1, stdout.read, e.message + e.backtrace.join("\n"))
         end
       end
     end

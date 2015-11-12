@@ -49,7 +49,9 @@ module Blender
 
       def run_command(command, session)
         exit_status = remote_exec(command, session)
-        ExecOutput.new(exit_status, stdout, stderr)
+        stdout.rewind
+        stderr.rewind
+        ExecOutput.new(exit_status, stdout.read, stderr.read)
       end
 
       private
