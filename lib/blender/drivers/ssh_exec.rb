@@ -21,31 +21,42 @@ module Blender::Driver::SSHExec
   def remote_exec(command, session)
     password = config[:password]
     command = fixup_sudo(command)
-    exit_status = 0
+
+    command_results = ThreadSafe::Hash.new do |command_results, host|
+      command_results[host] = Blender::Driver::Base::ExecOutput.new(
+        0,
+        Tempfile.new('blender-stdout'),
+        Tempfile.new('blender-stderr')
+      )
+    end
     channel = session.open_channel do |ch|
+      command_result = command_results[ch.connection.host]
       ch.request_pty
       ch.exec(command) do |ch, success|
         unless success
           Blender::Log.debug("Command not found:#{success.inspect}")
-          exit_status = -1
+          command_result.exitstatus = -1
         end
         ch.on_data do |c, data|
-          stdout << data
+          command_result.stdout << data
           c.send_data("#{password}\n") if data =~ /^blender sudo password: /
         end
         ch.on_extended_data do |c, type, data|
-          stderr << data
+          command_result.stderr << data
         end
         ch.on_request "exit-status" do |ichannel, data|
-          l = data.read_long
-          exit_status = [exit_status, l].max
-          Blender::Log.debug("exit_status:#{exit_status} , data:#{l}")
+          command_result.exitstatus = data.read_long
+          Blender::Log.debug("exit-status data:#{command_result.exitstatus}")
+        end
+        ch.on_close do |ch|
+          command_result.stdout.rewind
+          command_result.stderr.rewind
         end
       end
-      Blender::Log.debug("Exit(#{exit_status}) Command: '#{command}'")
+      Blender::Log.debug("Exit(#{command_result.exitstatus}) Command: '#{command}'")
     end
     channel.wait
-    exit_status
+    command_results
   end
 
   def fixup_sudo(command)
