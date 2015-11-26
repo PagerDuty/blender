@@ -47,8 +47,8 @@ module Blender
   def self.configure(scheduler, file)
     data = JSON.parse(File.read(file))
 
-    Blender::Log.level = data['log_level'].to_sym if data['log_level']
     Blender::Log.init(data['log_file']) if data['log_file']
+    Blender::Log.level = data['log_level'].to_sym if data['log_level']
 
     if data['load_paths']
       data['load_paths'].each do |path|
