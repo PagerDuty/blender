@@ -26,8 +26,8 @@ module Blender
 
       def initialize(config = {})
         cfg = config.dup
-        @stdout = cfg.delete(:stdout) || File.open(File::NULL, 'w')
-        @stderr = cfg.delete(:stderr) || File.open(File::NULL, 'w')
+        @stdout = cfg.delete(:stdout) || Tempfile.new('blender-stdout')
+        @stderr = cfg.delete(:stderr) || Tempfile.new('blender-stderr')
         @events = cfg.delete(:events) or fail 'Events needed'
         @config = cfg
       end
