@@ -71,16 +71,5 @@ module Blender
         Net::SSH.start(host, user, config)
       end
     end
-
-    class ScpUpload < Blender::Driver::Scp
-    end
-    class ScpDownload < Blender::Driver::Scp
-      def run_command(command, session)
-        begin
-        rescue StandardError => e
-          ExecOutput.new(-1, stdout, e.message + e.backtrace.join("\n"))
-        end
-      end
-    end
   end
 end
