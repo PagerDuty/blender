@@ -90,14 +90,13 @@ module Blender
     end
 
     def append_task(type, task, driver_config = {})
-      Log.debug("Appended task:#{task.name}")
-      klass = Blender::Driver.const_get(camelcase(type.to_s).to_sym)
       if task.driver.nil?
         opts = driver_config.dup
         opts.merge!(blender_config(type)) unless blender_config(type).empty?
         opts.merge!(task.driver_opts)
         task.use_driver(driver(type, opts))
       end
+      Log.debug("Appending task:#{task.name} with driver:#{task.driver.class.name}")
       @tasks << task
     end
 
