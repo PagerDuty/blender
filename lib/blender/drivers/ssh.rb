@@ -40,7 +40,7 @@ module Blender
           Array(tasks).each do |task|
             cmd = run_command(task.command, session)
             if cmd.exitstatus != 0 and !task.metadata[:ignore_failure]
-              raise ExecutionFailed, cmd.stderr
+              raise ExecutionFailed, { stderr: cmd.stderr, stdout: cmd.stdout }.to_json
             end
           end
           session.loop
@@ -48,8 +48,7 @@ module Blender
       end
 
       def run_command(command, session)
-        exit_status = remote_exec(command, session)
-        ExecOutput.new(exit_status, stdout, stderr)
+        aggregate_results(remote_exec(command, session))
       end
 
       private
@@ -57,6 +56,19 @@ module Blender
       def create_session(host)
         Log.debug("Invoking ssh: #{user}@#{host}")
         Net::SSH.start(host, user, config)
+      end
+
+      def aggregate_results(command_results)
+        status = command_results.all? { |k,v| v.exitstatus.zero? } ? 0 : 1
+        stdout = join_output(command_results, :stdout)
+        stderr = join_output(command_results, :stderr)
+        ExecOutput.new(status, stdout, stderr)
+      end
+
+      def join_output(results, stream_name)
+        output = {}
+        results.each { |host, result| output[host] = result.send(stream_name).read }
+        output
       end
     end
   end

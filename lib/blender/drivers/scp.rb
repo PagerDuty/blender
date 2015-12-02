@@ -59,7 +59,8 @@ module Blender
             ExecOutput.new(-1, '' , "Invalid direction. Can be either :upload or :download. Found:'#{command.direction}'")
           end
         rescue StandardError => e
-          ExecOutput.new(-1, stdout, e.message + e.backtrace.join("\n"))
+          # our implementation doesn't generate stdout, so return '' as stdout
+          ExecOutput.new(-1, '', e.message + e.backtrace.join("\n"))
         end
       end
 
@@ -68,17 +69,6 @@ module Blender
       def create_session(host)
         Log.debug("Invoking ssh: #{user}@#{host}")
         Net::SSH.start(host, user, config)
-      end
-    end
-
-    class ScpUpload < Blender::Driver::Scp
-    end
-    class ScpDownload < Blender::Driver::Scp
-      def run_command(command, session)
-        begin
-        rescue StandardError => e
-          ExecOutput.new(-1, stdout, e.message + e.backtrace.join("\n"))
-        end
       end
     end
   end

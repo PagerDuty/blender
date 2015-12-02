@@ -32,7 +32,7 @@ module Blender
           session = create_session(hosts, task.metadata[:concurrency])
           cmd = run_command(task.command, session)
           if cmd.exitstatus != 0 and !task.metadata[:ignore_failure]
-            raise ExecutionFailed, cmd.stderr
+            raise ExecutionFailed, { stderr: cmd.stderr, stdout: cmd.stdout }.to_json
           end
           session.loop
         end
