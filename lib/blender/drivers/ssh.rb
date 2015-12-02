@@ -59,10 +59,7 @@ module Blender
       end
 
       def aggregate_results(command_results)
-        status = command_results
-          .map { |h, r| r.exitstatus }
-          .reject { |x| x.zero? }
-          .first || 0
+        status = command_results.all? { |k,v| v.exitstatus.zero? } ? 0 : 1
         stdout = join_output(command_results, :stdout)
         stderr = join_output(command_results, :stderr)
         ExecOutput.new(status, stdout, stderr)
