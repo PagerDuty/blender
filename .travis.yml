@@ -1,10 +1,7 @@
 sudo: false
 language: ruby
-cache:
-  directories:
-    - .bundle
 before_install:
-  - bundle install --path .bundle
+  - bundle install
 rvm:
   - 2.1
   - 2.2
