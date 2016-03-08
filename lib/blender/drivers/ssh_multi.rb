@@ -24,7 +24,6 @@ require 'net/ssh/multi'
 module Blender
   module Driver
     class SshMulti < Ssh
-
       def execute(tasks, hosts)
         Log.debug("SSH execution tasks [#{tasks.size}]")
         Log.debug("SSH on hosts [#{hosts.join("\n")}]")
